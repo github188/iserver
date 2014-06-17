@@ -19,3 +19,14 @@
 *.exe
 *.out
 *.app
+*.suo
+/iserver/Debug/Demo.ilk
+/iserver/Debug/Demo.pdb
+/iserver/Debug/iServer.exp
+/iserver/Debug/iServer.ilk
+/iserver/Debug/iServer.pdb
+/iserver/Demo/Debug
+/iserver/Demo/Demo.vcproj.HIK.zhangyunjun.user
+/iserver/iServer/iServer.vcproj.HIK.zhangyunjun.user
+/iserver/iServer/Debug
+/iserver/message/message.vcproj.HIK.zhangyunjun.user

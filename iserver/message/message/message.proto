@@ -1,0 +1,131 @@
+package Chat;
+
+message Region
+{
+    optional int32 id        		= 1;    // id
+    optional string name     		= 2;    // name
+    optional int32 parent_id        = 4;    // parent region id
+    
+    optional int32 ui_handle        = 5;    // 控件句柄
+}
+
+message User
+{
+    optional string user_name       = 1;    // 登录名称
+    optional string user_pwd        = 2;
+    optional string user_ip         = 3;
+    optional string display_name    = 4;    // 显示名称
+    optional string user_phone      = 5;
+    
+    optional int64 longin_time      = 6;
+    optional int64 logout_time      = 7;
+    optional int64 last_beat        = 8;
+    
+    optional int32 parent_id        = 9;
+    optional int32 user_id          = 10;
+    
+    optional int32 ui_handle        = 11;   // 控件句柄
+    
+    optional UserConfig user_config = 12;   // 用户配置信息
+    
+    optional int32 udp_port         = 13;
+	optional int32 tcp_port			= 14;	// tcp 监听端口
+    
+}
+
+enum CMD
+{
+    LOGIN_REQUEST                   = 10001;
+    LOGIN_RESPONSE                  = 10002;
+    LOGOUT_REQUEST                  = 10003;
+    CLIENT_HEART_BEAT               = 10004;
+    CLIENT_GET_CONFIG               = 20001;
+    CLIENT_GET_CONFIG_RSP           = 20002;
+    CLIENT_SET_CONFIG               = 20003;
+    CLIENT_SET_CONFIG_RSP           = 20004;
+    CLIENT_GET_REGION               = 30001;
+    CLIENT_GET_REGION_RSP           = 30002;
+	CLIENT_GET_USER					= 30003;
+    CLIENT_GET_USER_RSP             = 30004;
+    
+	CLIENT_POST_MSG                 = 40001;
+    CLIENT_POST_MSG_RSP             = 40002;
+    CLIENT_RES_RSP                  = 40003;
+    
+    CLIENT_CHAT_INVITE              = 50001;
+    CLIENT_CHAT_CANCEL              = 50002;
+    CLIENT_CHAT_ACCEPT              = 50003;
+    CLIENT_CHAT_REFUSE              = 50004;
+    CLIENT_CHAT_ERROR               = 50005;
+}
+
+message LoginInfo
+{
+    optional string user_name       = 1;
+    optional string user_pwd        = 2;
+    optional string user_ip         = 3;
+    //optional int32  user_port       = 4;
+}
+
+message LoginResult
+{
+    optional int32 user_id          = 1;
+    optional string desc            = 2;
+}
+
+message UserConfig
+{
+    optional int32 use_sound        = 1;
+    optional int32 use_bubble       = 2;
+    optional int32 font_color       = 3;
+    optional string font_name       = 4;
+    optional int32 font_style       = 5;
+    optional int32 font_size        = 6;
+    optional int32 run_start        = 7;
+    optional int32 auto_login       = 8;
+}
+
+message PostMsg
+{
+    optional int32 to_user_id       = 1;
+    optional int32 from_user_id     = 2;
+    optional int32 msg_type         = 3;
+    optional string text_msg        = 4;
+    optional CMD post_cmd           = 5;
+}
+
+message NetMsgReq
+{
+    required CMD cmd                    = 1;        // 命令码
+    required string user_ip             = 2;        // 客户端ip
+    //required int32 user_port            = 3;        // 客户端port
+    optional LoginInfo login_info       = 4;        // 客户端登录信息
+    optional int32 user_id              = 5;        // 登出、获取\设置配置信息
+    optional UserConfig user_config   	= 6;        // 设置配置信息
+    optional PostMsg post_msg           = 7;
+	optional int32 value  				= 8;		// 请求信息附带的ID
+}
+message NetMsgRsp
+{
+    required CMD cmd                    = 1;        // 命令码
+    required int32 result               = 2;        // 成功返回0
+    optional LoginResult login_result   = 3;        // 登录返回
+    optional UserConfig user_config     = 4;        // 获取配置信息返回
+    //optional Region region			    = 5;        // 获取用户列表返回
+}
+
+message TransMsg
+{
+    required CMD cmd                    = 1;        // 命令码
+    repeated Region region       		= 2;        // 获取用户列表返回
+    repeated User user           		= 3;        // 获取用户列表返回
+    optional PostMsg post_msg 	        = 4;        //
+	required int32 result				= 5;
+	optional string desc				= 6;
+}
+
+message PRIVATE_MSG_RSP
+{
+    required CMD cmd                    = 1;        // 命令码
+    optional int32 confirm              = 2;        // 确认接收
+}
