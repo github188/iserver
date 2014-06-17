@@ -219,7 +219,7 @@ void user_state(const _request& req, _reply& rep)
     std::string content;
     if (_opera_type::opera_login == opera)  // 用户登录
     {
-        if (false == GetUserMgr().UserLogin_Xml(req.extern_string, content))
+        if (false == GetUserMgr().Xml_UserLogin(req.extern_string, content))
         {
             rep = _stock_replies::stock_reply(http_status::bad_request);
             return ;
@@ -227,7 +227,7 @@ void user_state(const _request& req, _reply& rep)
     }
     else if (_opera_type::opera_logout == opera)    // 用户登出
     {
-        if (false == GetUserMgr().UserLogout_Xml(req.extern_string, content))
+        if (false == GetUserMgr().Xml_UserLogout(req.extern_string, content))
         {
             rep = _stock_replies::stock_reply(http_status::bad_request);
             return ;
@@ -235,7 +235,7 @@ void user_state(const _request& req, _reply& rep)
     }
     else if (_opera_type::opera_heartb == opera)    // 在线用户心跳
     {
-        if (false == GetUserMgr().UserHeartB_Xml(req.extern_string, content))
+        if (false == GetUserMgr().Xml_UserHeartB(req.extern_string, content))
         {
             rep = _stock_replies::stock_reply(http_status::bad_request);
             return ;
@@ -279,7 +279,7 @@ void region_oper(const _request& req, _reply& rep)
     std::string content;
     if (req.method == "GET")    // 获取区域列表
     {
-        if (false == GetUserMgr().GetRegion_Xml(content))
+        if (false == GetUserMgr().Xml_GetRegion(content))
         {
             rep = _stock_replies::stock_reply(http_status::internal_server_error);
             return ;
@@ -333,7 +333,7 @@ void region_oper2(const _request& req, _reply& rep)
     std::string content;
     if (req.method == "GET")
     {
-        if (false == GetUserMgr().GetRegionInfo_Xml(str_id, content))
+        if (false == GetUserMgr().Xml_GetRegionInfo(str_id, content))
         {
             rep = _stock_replies::stock_reply(http_status::internal_server_error);
             return ;
@@ -399,7 +399,7 @@ void user_oper(const _request& req, _reply& rep)
     std::string content;
     if (req.method == "GET")
     {
-        if (false == GetUserMgr().GetUser_Xml(str_id, content))
+        if (false == GetUserMgr().Xml_GetUser(str_id, content))
         {
             rep = _stock_replies::stock_reply(http_status::internal_server_error);
             return ;
@@ -447,7 +447,7 @@ void user_oper2(const _request& req, _reply& rep)
     std::string content;
     if (req.method == "GET")
     {
-        if (false == GetUserMgr().GetUserInfo_Xml(str_id, content))
+        if (false == GetUserMgr().Xml_GetUserInfo(str_id, content))
         {
             rep = _stock_replies::stock_reply(http_status::internal_server_error);
             return ;

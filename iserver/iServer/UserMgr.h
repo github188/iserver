@@ -10,10 +10,13 @@ public:
     CUserMgr(void);
     ~CUserMgr(void);
     // 从数据库获取资源：用户列表、区域列表、用户区域组织列表
-    bool LoadRes(void);
+    bool LoadRes();
+    // 检查在线用户心跳状态
+    void CheckState();
 
 private:
     CBoostEvent m_SyncEvent;
+    CBoostEvent m_CheckEvent;
     CUserOperator m_userOper;
 
     CBoostLock m_regionLock;
@@ -24,6 +27,11 @@ private:
     class CSyncThread
     {
     public:
+        CSyncThread(int nInterval = 5000)
+            : m_nWaitSecond(nInterval)
+        {
+
+        };
         void Start()
         {
             m_thread.reset(new boost::thread(boost::bind(&CSyncThread::SyncRes, this)));
@@ -34,17 +42,47 @@ private:
         }
 
     private:
+        int m_nWaitSecond;
         boost::scoped_ptr<boost::thread> m_thread;
         void SyncRes()
         {
-            while(false == GetUserMgr().m_SyncEvent.timed_wait(5*1000))
+            while(false == GetUserMgr().m_SyncEvent.timed_wait(m_nWaitSecond))
             {
                 GetUserMgr().LoadRes();
             }
         }
     };
-
     CSyncThread m_thSyncRes;
+
+    class CCheckThread
+    {
+    public:
+        CCheckThread(int nInterval = 5000)
+            : m_nWaitSecond(nInterval)
+        {
+
+        };
+        void Start()
+        {
+            m_thread.reset(new boost::thread(boost::bind(&CCheckThread::ChkState, this)));
+        }
+        void Stop()
+        {
+            m_thread->interrupt();
+        }
+
+    private:
+        int m_nWaitSecond;
+        boost::scoped_ptr<boost::thread> m_thread;
+        void ChkState()
+        {
+            while(false == GetUserMgr().m_CheckEvent.timed_wait(m_nWaitSecond))
+            {
+                GetUserMgr().CheckState();
+            }
+        }
+    };
+    CCheckThread m_thCheckState;
 
 public:
     // 验证用户登录
@@ -67,14 +105,14 @@ public:
     bool GetUser_Proto(const int nUserId, User& userInfo);
 
     /* xml */
-    bool UserLogin_Xml(const std::string& login, std::string& result);
-    bool UserLogout_Xml(const std::string& logout, std::string& result);
-    bool UserHeartB_Xml(const std::string& heartb, std::string& result);
-    bool GetRegion_Xml(std::string& region_list_xml);
-    bool GetRegionInfo_Xml(const std::string& _region_id, std::string& region_info);
+    bool Xml_UserLogin(const std::string& login, std::string& result);
+    bool Xml_UserLogout(const std::string& logout, std::string& result);
+    bool Xml_UserHeartB(const std::string& heartb, std::string& result);
+    bool Xml_GetRegion(std::string& region_list_xml);
+    bool Xml_GetRegionInfo(const std::string& _region_id, std::string& region_info);
 
-    bool GetUser_Xml(const std::string& _region_id, std::string& user_list_xml);
-    bool GetUserInfo_Xml(const std::string& _user_id, std::string& user_info);
+    bool Xml_GetUser(const std::string& _region_id, std::string& user_list_xml);
+    bool Xml_GetUserInfo(const std::string& _user_id, std::string& user_info);
 };
 
 
