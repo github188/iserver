@@ -27,8 +27,8 @@ private:
     class CSyncThread
     {
     public:
-        CSyncThread(int nInterval = 5000)
-            : m_nWaitSecond(nInterval)
+        CSyncThread()
+            : m_nWaitSecond(5000)
         {
 
         };
@@ -57,8 +57,8 @@ private:
     class CCheckThread
     {
     public:
-        CCheckThread(int nInterval = 5000)
-            : m_nWaitSecond(nInterval)
+        CCheckThread()
+            : m_nWaitSecond(1500)
         {
 
         };
@@ -109,7 +109,9 @@ public:
     bool Xml_UserLogout(const std::string& logout, std::string& result);
     bool Xml_UserHeartB(const std::string& heartb, std::string& result);
     bool Xml_GetRegion(std::string& region_list_xml);
+    bool Xml_NewRegion(const std::string& new_info, std::string& result);
     bool Xml_GetRegionInfo(const std::string& _region_id, std::string& region_info);
+    bool Xml_ModRegionInofo(const std::string& reg_info, std::string& result);
 
     bool Xml_GetUser(const std::string& _region_id, std::string& user_list_xml);
     bool Xml_GetUserInfo(const std::string& _user_id, std::string& user_info);

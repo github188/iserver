@@ -21,7 +21,10 @@ namespace _error
             return "wrong password";
         case no_such_user:
             return "no such user";
-
+        case already_login:
+            return "no such user";
+        case no_auth:
+            return "not authorized user";
 
 
         default:

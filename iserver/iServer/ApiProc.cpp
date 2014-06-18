@@ -161,9 +161,6 @@ void user_oper(const _request& req, _reply& rep);
 // 获取用户信息
 void user_oper2(const _request& req, _reply& rep);
 
-// 转发消息
-void trans_msg(const _request& req, _reply& rep);
-
 CApiProc::CApiProc()
 {
     // 注册处理函数
@@ -172,7 +169,6 @@ CApiProc::CApiProc()
     rest_fun_regist(std::string("^/api/region/\\d{1,3}$"), region_oper2);
     rest_fun_regist(std::string("^/api/region/\\d{1,3}/user$"), user_oper);
     rest_fun_regist(std::string("^/api/user/\\d{1,3}$"), user_oper2);
-    rest_fun_regist(std::string("^/api/transaction$"), trans_msg);
 }
 
 int CApiProc::ApiProc(const _request& req_, _reply& rep_)
@@ -287,8 +283,11 @@ void region_oper(const _request& req, _reply& rep)
     }
     else if (req.method == "POST") // 创建新的区域
     {
-        rep = _stock_replies::stock_reply(http_status::bad_request);
-        return ;
+        if (false == GetUserMgr().Xml_NewRegion(req.extern_string, content))
+        {
+            rep = _stock_replies::stock_reply(http_status::internal_server_error);
+            return ;
+        }
     }
 
     rep.status = http_status::ok;
@@ -472,7 +471,4 @@ void user_oper2(const _request& req, _reply& rep)
     rep.headers[1].name = "Content-Type";
     rep.headers[1].value = accept_type;
 }
-void trans_msg(const _request& req, _reply& rep)
-{
-    printf("trans_msg:%s\n", req.uri.c_str());
-}
+

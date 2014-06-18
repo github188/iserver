@@ -267,7 +267,7 @@ bool CUserMgr::Xml_UserLogin(const std::string& login, std::string& result)
             else
             {
                 // 已经登录：user_ip
-                if (!itr->user_ip().empty())
+                if (!itr->user_ip().empty() && itr->user_ip() != user_ip)
                 {
                     find_ret = _error::already_login;
                     break;
@@ -278,6 +278,7 @@ bool CUserMgr::Xml_UserLogin(const std::string& login, std::string& result)
                 user_id = itr->user_id();
 
                 itr->set_longin_time(time(NULL));
+                itr->set_last_beat(time(NULL));
                 itr->set_user_ip(user_ip);
                 m_userOper.UpdateUserInfo(*itr);
             }
@@ -445,6 +446,10 @@ bool CUserMgr::Xml_GetRegion(std::string& region_list_xml)
     return true;
 }
 
+bool CUserMgr::Xml_NewRegion(const std::string& new_info, std::string& result)
+{
+    return true;
+}
 bool CUserMgr::Xml_GetRegionInfo(const std::string& _region_id, std::string& region_info)
 {
     int region_id = _tstoi(_region_id.c_str());
@@ -575,7 +580,7 @@ void CUserMgr::CheckState()
     std::list<User>::iterator itr = m_lsAllUser.begin();
     while (itr != m_lsAllUser.end())
     {
-        if (_abs64(itr->last_beat() - tNow) >= 15) // 3次心跳
+        if (!itr->user_ip().empty() && _abs64(itr->last_beat() - tNow) >= 15) // 3次心跳
         {
             // 记录登出
             itr->clear_user_ip();
@@ -584,6 +589,7 @@ void CUserMgr::CheckState()
             m_userOper.UpdateUserInfo(*itr);
 
             printfd("user id %d heart beat out of time\n", itr->user_id());
-        }        
+        }
+        ++itr;
     }
 }
