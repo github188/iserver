@@ -338,15 +338,21 @@ void region_oper2(const _request& req, _reply& rep)
             return ;
         }
     }
-    else if (req.method == "PUT")
+    else if (req.method == "PUT")   // 修改指定区域信息
     {
-        rep = _stock_replies::stock_reply(http_status::bad_request);
-        return ;
+        if (false == GetUserMgr().Xml_ModRegionInfo(req.extern_string, content))
+        {
+            rep = _stock_replies::stock_reply(http_status::internal_server_error);
+            return ;
+        }
     }
     else if (req.method == "DELETE")
     {
-        rep = _stock_replies::stock_reply(http_status::bad_request);
-        return ;
+        if (false == GetUserMgr().Xml_DelRegionInfo(str_id, content))
+        {
+            rep = _stock_replies::stock_reply(http_status::internal_server_error);
+            return ;
+        }
     }
 
     rep.status = http_status::ok;
@@ -406,8 +412,11 @@ void user_oper(const _request& req, _reply& rep)
     }
     else if (req.method == "POST") // 创建新的用户
     {
-        rep = _stock_replies::stock_reply(http_status::bad_request);
-        return ;
+        if (false == GetUserMgr().Xml_NewUser(req.extern_string, content))
+        {
+            rep = _stock_replies::stock_reply(http_status::internal_server_error);
+            return ;
+        }
     }
 
     rep.status = http_status::ok;
@@ -454,13 +463,19 @@ void user_oper2(const _request& req, _reply& rep)
     }
     else if (req.method == "PUT")
     {
-        rep = _stock_replies::stock_reply(http_status::bad_request);
-        return ;
+        if (false == GetUserMgr().Xml_ModUserInfo(req.extern_string, content))
+        {
+            rep = _stock_replies::stock_reply(http_status::internal_server_error);
+            return ;
+        }
     }
     else if (req.method == "DELETE")
     {
-        rep = _stock_replies::stock_reply(http_status::bad_request);
-        return ;
+        if (false == GetUserMgr().Xml_DelUserInfo(str_id, content))
+        {
+            rep = _stock_replies::stock_reply(http_status::internal_server_error);
+            return ;
+        }
     }
 
     rep.status = http_status::ok;

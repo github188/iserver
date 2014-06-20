@@ -111,10 +111,14 @@ public:
     bool Xml_GetRegion(std::string& region_list_xml);
     bool Xml_NewRegion(const std::string& new_info, std::string& result);
     bool Xml_GetRegionInfo(const std::string& _region_id, std::string& region_info);
-    bool Xml_ModRegionInofo(const std::string& reg_info, std::string& result);
+    bool Xml_ModRegionInfo(const std::string& reg_info, std::string& result);
+    bool Xml_DelRegionInfo(const std::string& _region_id, std::string& result);
 
     bool Xml_GetUser(const std::string& _region_id, std::string& user_list_xml);
+    bool Xml_NewUser(const std::string& user_info, std::string& result);
     bool Xml_GetUserInfo(const std::string& _user_id, std::string& user_info);
+    bool Xml_ModUserInfo(const std::string& user_info, std::string& result);
+    bool Xml_DelUserInfo(const std::string& _user_id, std::string& result);
 };
 
 

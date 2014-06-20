@@ -7,5 +7,4 @@ public:
     virtual ~CApiProc(void){};
 
     int ApiProc(const _request& req_, _reply& rep_);
-
 };

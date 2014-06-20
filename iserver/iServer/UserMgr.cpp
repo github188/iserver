@@ -478,7 +478,14 @@ bool CUserMgr::Xml_GetRegionInfo(const std::string& _region_id, std::string& reg
     region_info = xml.GetDoc();
     return find_ret;
 }
-
+bool CUserMgr::Xml_ModRegionInfo(const std::string& reg_info, std::string& result)
+{
+    return true;
+}
+bool CUserMgr::Xml_DelRegionInfo(const std::string& _region_id, std::string& result)
+{
+    return true;
+}
 bool CUserMgr::Xml_GetUser(const std::string& _region_id, std::string& user_list_xml)
 {
     int region_id = _tstoi(_region_id.c_str());
@@ -528,6 +535,10 @@ bool CUserMgr::Xml_GetUser(const std::string& _region_id, std::string& user_list
     return true;
 }
 
+bool CUserMgr::Xml_NewUser(const std::string& user_info, std::string& result)
+{
+    return true;
+}
 bool CUserMgr::Xml_GetUserInfo(const std::string& _user_id, std::string& user_info)
 {
     int user_id = _tstoi(_user_id.c_str());
@@ -572,6 +583,15 @@ bool CUserMgr::Xml_GetUserInfo(const std::string& _user_id, std::string& user_in
     return find_ret;
 }
 
+bool CUserMgr::Xml_ModUserInfo(const std::string& user_info, std::string& result)
+{
+    return true;
+}
+
+bool CUserMgr::Xml_DelUserInfo(const std::string& _user_id, std::string& result)
+{
+    return true;
+}
 void CUserMgr::CheckState()
 {   
     // Ö´ÐÐÒ»´Î
