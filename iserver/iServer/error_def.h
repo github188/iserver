@@ -9,6 +9,12 @@ namespace _error
         no_such_user = -2,
         already_login = -3,
         no_auth = -4,
+
+        repeated_region=-10,
+        no_such_parent=-11,
+        no_such_region=-12,
+
+        operator_fail=-100,
     };
 
     std::string to_msg(_value val)

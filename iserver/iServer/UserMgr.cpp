@@ -440,7 +440,6 @@ bool CUserMgr::Xml_GetRegion(std::string& region_list_xml)
     }
 
     xml.OutOfElem();
-    
     region_list_xml = xml.GetDoc();
 
     return true;
@@ -448,8 +447,79 @@ bool CUserMgr::Xml_GetRegion(std::string& region_list_xml)
 
 bool CUserMgr::Xml_NewRegion(const std::string& new_info, std::string& result)
 {
+    CMarkup xml;
+    if (false == xml.SetDoc(new_info))
+    {
+        return false;
+    }
+    if (false == xml.FindElem(XML_REGION))
+    {
+        return false;
+    }
+    xml.IntoElem();
+    if (false == xml.FindElem(XML_REGION_NAME))
+    {
+        return false;
+    }
+    std::string region_name = xml.GetData();
+    if (false == xml.FindElem(XML_PARENT_ID))
+    {
+        return false;
+    }
+    int parent_id = atoi(xml.GetData().c_str());
+
+    CMarkup xml_ret;
+    xml_ret.SetDoc(XML_HEADER);
+    xml_ret.AddElem(XML_ROOT);
+    xml_ret.IntoElem();
+
+    // 检查是否存在父级
+    _error::_value find_ret = _error::no_such_parent;
+    CBoostGuard regLock(&m_regionLock);
+    for (std::list<Region>::const_iterator itr = m_lsAllRegion.begin();
+    itr != m_lsAllRegion.end(); ++itr)
+    {
+        if (itr->id() == parent_id)
+        {
+            find_ret = _error::ok;
+            break;
+        }
+    }
+    // 检查是否有重复名称
+    if (_error::ok == find_ret)
+    {
+        for (std::list<Region>::const_iterator itr = m_lsAllRegion.begin();
+            itr != m_lsAllRegion.end(); ++itr)
+        {
+            if (itr->parent_id() != parent_id)
+            {
+                continue;
+            }
+
+            if (itr->name() == region_name)
+            {
+                find_ret = _error::repeated_region;
+                break;
+            }      
+        }
+
+        Region reg;
+        reg.set_name(region_name);
+        reg.set_parent_id(parent_id);
+        if(false == m_userOper.AddRegionInfo(reg))
+        {
+            find_ret = _error::operator_fail;
+        }
+    }
+
+    xml_ret.AddElem(XML_RESULT, find_ret);
+    xml_ret.AddElem(XML_RESULT_MSG, _error::to_msg(find_ret));
+    xml_ret.OutOfElem();
+    result = xml_ret.GetDoc();
+
     return true;
 }
+
 bool CUserMgr::Xml_GetRegionInfo(const std::string& _region_id, std::string& region_info)
 {
     int region_id = _tstoi(_region_id.c_str());
@@ -459,31 +529,164 @@ bool CUserMgr::Xml_GetRegionInfo(const std::string& _region_id, std::string& reg
     xml.AddElem(XML_REGION);
     xml.IntoElem();
 
-    bool find_ret = false;
     CBoostGuard regLock(&m_regionLock);
     for (std::list<Region>::const_iterator itr = m_lsAllRegion.begin();
         itr != m_lsAllRegion.end(); ++itr)
     {
         if (itr->id() == region_id)
         {
-            find_ret = true;
             xml.AddElem(XML_REGION_ID, itr->id());
             xml.AddElem(XML_REGION_NAME, fcU2A(itr->name().c_str()));
             xml.AddElem(XML_PARENT_ID, itr->parent_id());
         }
     }
-
     xml.OutOfElem();
-
     region_info = xml.GetDoc();
-    return find_ret;
-}
-bool CUserMgr::Xml_ModRegionInfo(const std::string& reg_info, std::string& result)
-{
+
     return true;
 }
+
+bool CUserMgr::Xml_ModRegionInfo(const std::string& reg_info, std::string& result)
+{
+    CMarkup xml;
+    if (false == xml.SetDoc(reg_info))
+    {
+        return false;
+    }
+    if (false == xml.FindElem(XML_REGION))
+    {
+        return false;
+    }
+    xml.IntoElem();
+    if (false == xml.FindElem(XML_REGION_ID))
+    {
+        return false;
+    }
+    int region_id = atoi(xml.GetData().c_str());
+    if (false == xml.FindElem(XML_REGION_NAME))
+    {
+        return false;
+    }
+    std::string region_name = xml.GetData();
+    if (false == xml.FindElem(XML_PARENT_ID))
+    {
+        return false;
+    }
+    int parent_id = atoi(xml.GetData().c_str());
+    
+    Region reg; // 修改区域的信息
+
+    CMarkup xml_ret;
+    xml_ret.SetDoc(XML_HEADER);
+    xml_ret.AddElem(XML_ROOT);
+    xml_ret.IntoElem();
+
+    // 检查该区域是否存在
+    _error::_value find_ret = _error::no_such_region;
+    CBoostGuard regLock(&m_regionLock);
+    for (std::list<Region>::const_iterator itr = m_lsAllRegion.begin();
+        itr != m_lsAllRegion.end(); ++itr)
+    {
+        if (itr->id() == region_id)
+        {
+            find_ret = _error::ok;
+            break;
+        }
+    }
+    if (_error::ok != find_ret)
+    {
+        goto _exit;
+    }
+    
+    // 修改名称是否重复
+    find_ret = _error::ok;
+    for (std::list<Region>::const_iterator itr = m_lsAllRegion.begin();
+        itr != m_lsAllRegion.end(); ++itr)
+    {
+        if (itr->parent_id() != parent_id)
+        {
+            continue;
+        }
+        if (itr->name() == region_name)
+        {
+            find_ret = _error::repeated_region;
+            break;
+        }  
+    }
+    if (_error::ok != find_ret)
+    {
+        goto _exit;
+    }
+    
+    // 修改父级是否存在
+    find_ret = _error::no_such_parent;
+    for (std::list<Region>::const_iterator itr = m_lsAllRegion.begin();
+        itr != m_lsAllRegion.end(); ++itr)
+    {
+        if (itr->id() == parent_id)
+        {
+            find_ret = _error::ok;
+            break;
+        }
+    }
+
+    reg.set_id(region_id);
+    reg.set_name(region_name);
+    reg.set_parent_id(parent_id);
+    if(false == m_userOper.UpdateRegionInfo(reg))
+    {
+        find_ret = _error::operator_fail;
+    }
+
+_exit:
+    xml_ret.AddElem(XML_RESULT, find_ret);
+    xml_ret.AddElem(XML_RESULT_MSG, _error::to_msg(find_ret));
+    xml_ret.OutOfElem();
+    result = xml_ret.GetDoc();
+
+    return true;
+}
+
 bool CUserMgr::Xml_DelRegionInfo(const std::string& _region_id, std::string& result)
 {
+    int region_id = atoi(_region_id.c_str());
+
+    CMarkup xml_ret;
+    xml_ret.SetDoc(XML_HEADER);
+    xml_ret.AddElem(XML_ROOT);
+    xml_ret.IntoElem();
+
+    Region reg;
+
+    // 检查该区域是否存在
+    _error::_value find_ret = _error::no_such_region;
+    CBoostGuard regLock(&m_regionLock);
+    for (std::list<Region>::const_iterator itr = m_lsAllRegion.begin();
+        itr != m_lsAllRegion.end(); ++itr)
+    {
+        if (itr->id() == region_id)
+        {
+            find_ret = _error::ok;
+            break;
+        }
+    }
+    if (_error::ok != find_ret)
+    {
+        goto _exit;
+    }
+
+    reg.set_id(region_id);
+    if(false == m_userOper.DeleteRegionInfo(reg))
+    {
+        find_ret = _error::operator_fail;
+    }
+
+_exit:
+    xml_ret.AddElem(XML_RESULT, find_ret);
+    xml_ret.AddElem(XML_RESULT_MSG, _error::to_msg(find_ret));
+    xml_ret.OutOfElem();
+    result = xml_ret.GetDoc();
+
     return true;
 }
 bool CUserMgr::Xml_GetUser(const std::string& _region_id, std::string& user_list_xml)
@@ -529,7 +732,6 @@ bool CUserMgr::Xml_GetUser(const std::string& _region_id, std::string& user_list
         ++itr;
     }
     xml.OutOfElem();
-
     user_list_xml = xml.GetDoc();
 
     return true;
@@ -578,9 +780,9 @@ bool CUserMgr::Xml_GetUserInfo(const std::string& _user_id, std::string& user_in
     }
 
     xml.OutOfElem();
-
     user_info = xml.GetDoc();
-    return find_ret;
+
+    return true;
 }
 
 bool CUserMgr::Xml_ModUserInfo(const std::string& user_info, std::string& result)
