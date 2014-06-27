@@ -5,8 +5,8 @@
 #include <list>
 
 const int ROUND_BLACK       = 3;
-const int MAX_WEEK          = 7;
-const int WEEK_DAY          = 7;
+const int MAX_WEEK_ROW      = 7;
+const int MAX_WEEK_COL      = 7;
 const int DATE_BASE_HEIGHT  = 35;
 const int WEEK_NAME_HEIGHT  = 25;
 const int DAY_HEIGHT		= 24;
@@ -74,7 +74,7 @@ namespace _date
 	class _Week
 	{
 	private:
-		CString m_strWeekName[WEEK_DAY + 1];
+		CString m_strWeekName[MAX_WEEK_COL + 1];
 		CString m_strInvalide;
 	public:
 		_Week()
@@ -92,7 +92,7 @@ namespace _date
 
 		CString& Day(int n)
 		{
-			if (n > 0 && n <= WEEK_DAY)
+			if (n > 0 && n <= MAX_WEEK_COL)
 			{
 				return m_strWeekName[n];
 			}

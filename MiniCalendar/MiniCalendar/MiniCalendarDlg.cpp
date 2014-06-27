@@ -211,7 +211,7 @@ void CMiniCalendarDlg::DrawLines(CPaintDC& dc)
         dc.MoveTo(m_rcClient.left, m_dayArea[i][0].rcDay().top);
         dc.LineTo(m_rcClient.right, m_dayArea[i][0].rcDay().top);
     }
-    for (int i = 0; i < WEEK_DAY; ++i)
+    for (int i = 0; i < MAX_WEEK_COL; ++i)
     {
 		dc.MoveTo(m_dayArea[0][i].rcDay().left, m_dayArea[0][0].rcDay().top);
 		dc.LineTo(m_dayArea[0][i].rcDay().left, m_dayArea[m_nWeekNum][0].rcDay().bottom);
@@ -233,7 +233,7 @@ void CMiniCalendarDlg::SetDayRect(const CRect& rcClient)
         nTop = rcClient.bottom - (m_nWeekNum - i + 1) * nDayHeight;
         nBottom = nTop + nDayHeight;
 
-        for (int j = 0; j < WEEK_DAY; ++j)
+        for (int j = 0; j < MAX_WEEK_COL; ++j)
         {
             nLeft = rcClient.left + j * nDayWidth;
             nRight = nLeft + nDayWidth;
@@ -243,7 +243,7 @@ void CMiniCalendarDlg::SetDayRect(const CRect& rcClient)
     }
 
 	nTop = m_dayArea[1][0].rcDay().top - WEEK_NAME_HEIGHT;
-	for (int i = 0; i < WEEK_DAY; ++i)
+	for (int i = 0; i < MAX_WEEK_COL; ++i)
 	{
 		nLeft = rcClient.left + i * nDayWidth;
 		nRight = nLeft + nDayWidth;
@@ -266,7 +266,7 @@ void CMiniCalendarDlg::DrawDay(CPaintDC& dc)
 
 	// 星期头部
 	dc.SelectObject(&m_fontDay);
-	for (int i = 0; i < WEEK_DAY; i++)
+	for (int i = 0; i < MAX_WEEK_COL; i++)
 	{
 		strText = CString(_T("    ")) + _date::week.Day(i + 1);
 		rcTemp = m_dayArea[0][i].rcDay();
@@ -278,7 +278,7 @@ void CMiniCalendarDlg::DrawDay(CPaintDC& dc)
 	// 天
     for (int i = 1; i <= m_nWeekNum; ++i)
     {
-        for (int j = 0; j < WEEK_DAY; ++j)
+        for (int j = 0; j < MAX_WEEK_COL; ++j)
         {
 			if (0 == m_dayArea[i][j].date().GetTime())
 			{
