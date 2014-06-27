@@ -50,6 +50,19 @@ CMiniCalendarDlg::CMiniCalendarDlg(CWnd* pParent /*=NULL*/)
     , m_nWeekNum(5)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	m_penLine.CreatePen(PS_SOLID, 1, BKG_LINE_COLOR);
+	
+	LOGFONT lf;
+	memset(&lf, 0, sizeof(lf));
+	lf.lfHeight = 160;
+	_tcscpy_s(lf.lfFaceName, _T("微软雅黑"));
+	m_fontDate.CreatePointFontIndirect(&lf);
+
+	memset(&lf, 0, sizeof(lf));
+	lf.lfHeight = 100;
+	_tcscpy_s(lf.lfFaceName, _T("微软雅黑"));
+	m_fontDay.CreatePointFontIndirect(&lf);
 }
 
 void CMiniCalendarDlg::DoDataExchange(CDataExchange* pDX)
@@ -99,6 +112,10 @@ BOOL CMiniCalendarDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	SetWindowText(_T("MiniCanlendar"));
+	MoveWindow(0, 0, 1024, 600);
+
+	InitDateInfo();
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -173,13 +190,12 @@ void CMiniCalendarDlg::OnSize(UINT nType, int cx, int cy)
     GetClientRect(m_rcClient);
     m_rcClient.DeflateRect(ROUND_BLACK, ROUND_BLACK, ROUND_BLACK, ROUND_BLACK);
     SetDayRect(m_rcClient);
+	Invalidate(TRUE);
 }
 
 void CMiniCalendarDlg::DrawLines(CPaintDC& dc)
-{
-    CPen pLine;
-    pLine.CreatePen(PS_SOLID, 1, BKG_LINE_COLOR);
-    CPen *pOld = dc.SelectObject(&pLine);
+{    
+    dc.SelectObject(&m_penLine);
     dc.SelectStockObject(HOLLOW_BRUSH);
 
     // 外边框
@@ -190,15 +206,15 @@ void CMiniCalendarDlg::DrawLines(CPaintDC& dc)
     dc.LineTo(m_rcClient.left, m_rcClient.top);
 
     // 按天分割
-    for (int i = 0; i < m_nWeekNum; ++i)
+    for (int i = 0; i <= m_nWeekNum; ++i)
     {
-        dc.MoveTo(m_rcClient.left, m_rcDay[i][0].top);
-        dc.LineTo(m_rcClient.right, m_rcDay[i][0].top);
+        dc.MoveTo(m_rcClient.left, m_dayArea[i][0].rcDay().top);
+        dc.LineTo(m_rcClient.right, m_dayArea[i][0].rcDay().top);
     }
     for (int i = 0; i < WEEK_DAY; ++i)
     {
-        dc.MoveTo(m_rcDay[0][i].left, m_rcClient.top);
-        dc.LineTo(m_rcDay[0][i].left, m_rcClient.bottom);
+		dc.MoveTo(m_dayArea[0][i].rcDay().left, m_dayArea[0][0].rcDay().top);
+		dc.LineTo(m_dayArea[0][i].rcDay().left, m_dayArea[m_nWeekNum][0].rcDay().bottom);
     }
 }
 
@@ -214,7 +230,7 @@ void CMiniCalendarDlg::SetDayRect(const CRect& rcClient)
 
     for (int i = m_nWeekNum; i > 0; --i)
     {
-        nTop = rcClient.bottom - (m_nWeekNum - i) * nDayHeight;
+        nTop = rcClient.bottom - (m_nWeekNum - i + 1) * nDayHeight;
         nBottom = nTop + nDayHeight;
 
         for (int j = 0; j < WEEK_DAY; ++j)
@@ -222,21 +238,90 @@ void CMiniCalendarDlg::SetDayRect(const CRect& rcClient)
             nLeft = rcClient.left + j * nDayWidth;
             nRight = nLeft + nDayWidth;
 
-            m_rcDay[i][j] = CRect(nLeft, nTop, nRight, nBottom);
+            m_dayArea[i][j].SetRect(CRect(nLeft, nTop, nRight, nBottom));
         }
     }
+
+	nTop = m_dayArea[1][0].rcDay().top - WEEK_NAME_HEIGHT;
+	for (int i = 0; i < WEEK_DAY; ++i)
+	{
+		nLeft = rcClient.left + i * nDayWidth;
+		nRight = nLeft + nDayWidth;
+		m_dayArea[0][i].SetRect(CRect(nLeft, nTop, nRight, m_dayArea[1][0].rcDay().top));
+	}
 }
 
 void CMiniCalendarDlg::DrawDay(CPaintDC& dc)
 {
-    CString strDay;
-    for (int i = 0; i < m_nWeekNum; ++i)
+	dc.SetBkMode(TRANSPARENT);
+	
+	// 日期
+	dc.SelectObject(&m_fontDate);
+	CRect rcArea(m_rcClient.left, m_rcClient.top, m_rcClient.right, m_rcClient.top + DATE_BASE_HEIGHT);
+	CRect rcTemp = rcArea;
+	CString strText = m_tToday.Format(_T("%Y-%m-%d %A"));
+	int nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
+	rcArea.top += (rcArea.Height() - nTemp) / 2;
+	dc.DrawText(strText, &rcArea, DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
+
+	// 星期头部
+	dc.SelectObject(&m_fontDay);
+	for (int i = 0; i < WEEK_DAY; i++)
+	{
+		strText = CString(_T("    ")) + _date::week.Day(i + 1);
+		rcTemp = m_dayArea[0][i].rcDay();
+		nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
+		rcArea = m_dayArea[0][i].rcDay();
+		rcArea.top += (rcArea.Height() - nTemp) / 2;
+		dc.DrawText(strText, &rcArea, DT_EDITCONTROL | DT_WORDBREAK);
+	}
+	// 天
+    for (int i = 1; i <= m_nWeekNum; ++i)
     {
         for (int j = 0; j < WEEK_DAY; ++j)
         {
-            strDay.Format("%d,%d", i, j);
+			if (0 == m_dayArea[i][j].date().GetTime())
+			{
+				continue;
+			}
 
-            dc.TextOut(m_rcDay[i][j].left, m_rcDay[i][j].top, strDay);
+			strText.Format(_T(" %2d日"), m_dayArea[i][j].date().GetDay());
+			rcTemp = m_dayArea[i][j].rcDay();
+			nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
+			rcArea = m_dayArea[i][j].rcDay();
+			rcArea.bottom = rcArea.top + DAY_HEIGHT;
+			rcArea.top += (rcArea.Height() - nTemp) / 2;
+			dc.DrawText(strText, &rcArea, DT_LEFT | DT_EDITCONTROL | DT_WORDBREAK);
+
+			strText = m_dayArea[i][j].lunar() + _T(" ");
+			dc.DrawText(strText, &rcArea, DT_RIGHT | DT_EDITCONTROL | DT_WORDBREAK);
         }
     }
+}
+
+
+void CMiniCalendarDlg::InitDateInfo()
+{
+	CTime ct = CTime::GetCurrentTime();
+	
+	int nYear = ct.GetYear();
+	int nMonth = ct.GetMonth();
+	int nMonthDay = _date::GetMonthDay(nMonth, ct.GetYear());
+
+	CTime t;
+	int nWeekNum = 1;
+	for (int i = 1; i <= nMonthDay; ++i)
+	{
+		t = CTime(nYear, nMonth, i, 0, 0, 0);
+		int nWeekDay = t.GetDayOfWeek() - 1;
+		m_dayArea[nWeekNum][nWeekDay].SetDate(t);
+		m_dayArea[nWeekNum][nWeekDay].SetLunar(L"农历");
+
+		if (6 == nWeekDay)
+		{
+			++nWeekNum;
+		}
+	}
+	m_nWeekNum = nWeekNum;
+	m_tToday = ct;
 }

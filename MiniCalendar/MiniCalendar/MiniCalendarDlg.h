@@ -35,8 +35,15 @@ public:
     afx_msg void OnSize(UINT nType, int cx, int cy);
 
     CRect m_rcClient;
-    CRect m_rcDay[MAX_WEEK][WEEK_DAY];  // 第0行用来显示星期头
+	_date::DAY_INFO m_dayArea[MAX_WEEK][WEEK_DAY];  // 第0行用来显示星期头
     int m_nWeekNum;
     void SetDayRect(const CRect& rcClient);
     void DrawDay(CPaintDC& dc);
+
+	CPen m_penLine;
+	CFont m_fontDay;
+	CFont m_fontDate;
+	CTime m_tToday;
+
+	void InitDateInfo();
 };
