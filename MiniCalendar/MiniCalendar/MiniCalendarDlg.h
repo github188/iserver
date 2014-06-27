@@ -1,0 +1,42 @@
+
+// MiniCalendarDlg.h : 头文件
+//
+
+#pragma once
+#include "data_def.h"
+
+// CMiniCalendarDlg 对话框
+class CMiniCalendarDlg : public CDialog
+{
+// 构造
+public:
+	CMiniCalendarDlg(CWnd* pParent = NULL);	// 标准构造函数
+
+// 对话框数据
+	enum { IDD = IDD_MINICALENDAR_DIALOG };
+
+	protected:
+	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
+
+
+// 实现
+protected:
+	HICON m_hIcon;
+
+	// 生成的消息映射函数
+	virtual BOOL OnInitDialog();
+	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
+	afx_msg void OnPaint();
+	afx_msg HCURSOR OnQueryDragIcon();
+	DECLARE_MESSAGE_MAP()
+public:
+    afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+    void DrawLines(CPaintDC& dc);
+    afx_msg void OnSize(UINT nType, int cx, int cy);
+
+    CRect m_rcClient;
+    CRect m_rcDay[MAX_WEEK][WEEK_DAY];  // 第0行用来显示星期头
+    int m_nWeekNum;
+    void SetDayRect(const CRect& rcClient);
+    void DrawDay(CPaintDC& dc);
+};

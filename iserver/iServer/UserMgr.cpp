@@ -575,6 +575,9 @@ bool CUserMgr::Xml_ModRegionInfo(const std::string& reg_info, std::string& resul
     int parent_id = atoi(xml.GetData().c_str());
     
     Region reg; // 修改区域的信息
+    reg.set_id(region_id);
+    reg.set_name(region_name);
+    reg.set_parent_id(parent_id);
 
     CMarkup xml_ret;
     xml_ret.SetDoc(XML_HEADER);
@@ -630,9 +633,6 @@ bool CUserMgr::Xml_ModRegionInfo(const std::string& reg_info, std::string& resul
         }
     }
 
-    reg.set_id(region_id);
-    reg.set_name(region_name);
-    reg.set_parent_id(parent_id);
     if(false == m_userOper.UpdateRegionInfo(reg))
     {
         find_ret = _error::operator_fail;
@@ -657,6 +657,7 @@ bool CUserMgr::Xml_DelRegionInfo(const std::string& _region_id, std::string& res
     xml_ret.IntoElem();
 
     Region reg;
+    reg.set_id(region_id);
 
     // 检查该区域是否存在
     _error::_value find_ret = _error::no_such_region;
@@ -675,7 +676,6 @@ bool CUserMgr::Xml_DelRegionInfo(const std::string& _region_id, std::string& res
         goto _exit;
     }
 
-    reg.set_id(region_id);
     if(false == m_userOper.DeleteRegionInfo(reg))
     {
         find_ret = _error::operator_fail;
