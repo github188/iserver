@@ -6,10 +6,12 @@
 
 const int ROUND_BLACK       = 3;
 const int MAX_WEEK_ROW      = 7;
-const int MAX_WEEK_COL      = 7;
+const int MAX_WEEK_COL      = 8;
 const int DATE_BASE_HEIGHT  = 35;
 const int WEEK_NAME_HEIGHT  = 25;
 const int DAY_HEIGHT		= 24;
+const int CHECK_EVENT	    = 1;
+const int WEEK_NUM_WIDTH	= 25;
 
 const COLORREF BKG_LINE_COLOR = RGB(222,222,222);
 

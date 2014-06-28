@@ -43,7 +43,19 @@ public:
 	CPen m_penLine;
 	CFont m_fontDay;
 	CFont m_fontDate;
+	
+	// 当前时间
 	CTime m_tToday;
 
+	// 日期栏大小，作为假的标题栏
+	CRect m_rcFakeTitle;
+
 	void InitDateInfo();
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+
+	void CheckDay();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+
+	void InvalidateDay();
+	void InvalidateMonth();
 };
