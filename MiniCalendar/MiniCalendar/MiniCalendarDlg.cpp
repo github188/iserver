@@ -163,8 +163,9 @@ void CMiniCalendarDlg::OnPaint()
 	else
 	{
         CPaintDC dc(this);
+		// 基本信息
+        DrawCanlendar(dc);
         DrawLines(dc);
-        DrawDay(dc);
 
 		CDialog::OnPaint();
 	}
@@ -212,13 +213,13 @@ void CMiniCalendarDlg::DrawLines(CPaintDC& dc)
     // 按天分割
     for (int i = 0; i <= m_nWeekNum; ++i)
     {
-        dc.MoveTo(m_rcClient.left, m_dayArea[i][0].rcDay().top);
-        dc.LineTo(m_rcClient.right, m_dayArea[i][0].rcDay().top);
+        dc.MoveTo(m_rcClient.left, m_dayArea[i][0].rect().top);
+        dc.LineTo(m_rcClient.right, m_dayArea[i][0].rect().top);
     }
     for (int i = 0; i < MAX_WEEK_COL; ++i)
     {
-		dc.MoveTo(m_dayArea[0][i].rcDay().left, m_dayArea[0][0].rcDay().top);
-		dc.LineTo(m_dayArea[0][i].rcDay().left, m_dayArea[m_nWeekNum][0].rcDay().bottom);
+		dc.MoveTo(m_dayArea[0][i].rect().left, m_dayArea[0][0].rect().top);
+		dc.LineTo(m_dayArea[0][i].rect().left, m_dayArea[m_nWeekNum][0].rect().bottom);
     }
 }
 
@@ -238,102 +239,53 @@ void CMiniCalendarDlg::SetDayRect(const CRect& rcClient)
         nTop = rcClient.bottom - (m_nWeekNum - i + 1) * nDayHeight;
         nBottom = nTop + nDayHeight;
 
-        for (int j = 1; j < MAX_WEEK_COL; ++j)
-        {
-            nLeft = rcClient.left + (j - 1) * nDayWidth + WEEK_NUM_WIDTH;
-            nRight = nLeft + nDayWidth;
+		for (int j = MAX_WEEK_COL - 1; j > 0; --j)
+		{
+			nLeft = rcClient.right - (MAX_WEEK_COL - j) * nDayWidth;
+			nRight = nLeft + nDayWidth;
 
-            m_dayArea[i][j].SetRect(CRect(nLeft, nTop, nRight, nBottom));
-        }
+			m_dayArea[i][j].SetRect(CRect(nLeft, nTop, nRight, nBottom));
+		}
     }
 
 	// 周次
 	nLeft = m_rcClient.left;
-	nRight = m_dayArea[1][1].rcDay().left;
+	nRight = m_dayArea[1][1].rect().left;
 	for (int i = 0; i <= m_nWeekNum; ++i)
 	{
-		nTop = m_dayArea[i][1].rcDay().top;
-		nBottom = m_dayArea[i][1].rcDay().bottom;
+		nTop = m_dayArea[i][1].rect().top;
+		nBottom = m_dayArea[i][1].rect().bottom;
 		m_dayArea[i][0].SetRect(CRect(nLeft, nTop, nRight, nBottom));
 	}
 
 	// 星期头部
-	nTop = m_dayArea[1][0].rcDay().top - WEEK_NAME_HEIGHT;
-	nBottom = m_dayArea[1][0].rcDay().top;
+	nTop = m_dayArea[1][0].rect().top - WEEK_NAME_HEIGHT;
+	nBottom = m_dayArea[1][0].rect().top;
 	for (int i = 0; i < MAX_WEEK_COL; ++i)
 	{
-		nLeft = m_dayArea[1][i].rcDay().left;
+		nLeft = m_dayArea[1][i].rect().left;
 		nRight = nLeft + nDayWidth;
 		m_dayArea[0][i].SetRect(CRect(nLeft, nTop, nRight, nBottom));
 	}
 
-	m_rcFakeTitle = CRect(m_rcClient.left, m_rcClient.top, m_rcClient.right, m_dayArea[0][0].rcDay().top);
+	m_rcFakeTitle = CRect(m_rcClient.left, m_rcClient.top, m_rcClient.right, m_dayArea[0][0].rect().top);
 }
 
-void CMiniCalendarDlg::DrawDay(CPaintDC& dc)
+void CMiniCalendarDlg::DrawCanlendar(CPaintDC& dc)
 {
-	TRACE("draw day\n");
 	dc.SetBkMode(TRANSPARENT);
-	
-	// 日期
-	dc.SelectObject(&m_fontDate);
-	CRect rcArea = m_rcFakeTitle;
-	CRect rcTemp = rcArea;
-	CString strText = m_tToday.Format(_T("%Y-%m-%d %A"));
-	int nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
-	rcArea.top += (rcArea.Height() - nTemp) / 2;
-	dc.DrawText(strText, &rcArea, DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
 
-	dc.SelectObject(&m_fontDay);
-	// 周次
-	for (int i = 1; i <= m_nWeekNum; ++i)
-	{
-		strText = m_dayArea[i][1].date().Format(_T("%U周"));
-		rcTemp = m_dayArea[i][0].rcDay();
-		nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
-		rcArea = m_dayArea[i][0].rcDay();
-		rcArea.top += (rcArea.Height() - nTemp) / 2;
-		dc.DrawText(strText, &rcArea, DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
-	}
+	// 颜色
+	PaintColor(dc);
 
-	// 星期头部
-	for (int i = 0; i < MAX_WEEK_COL; i++)
-	{
-		strText = CString(_T("    ")) + _date::week.Day(i);
-		rcTemp = m_dayArea[0][i].rcDay();
-		nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
-		rcArea = m_dayArea[0][i].rcDay();
-		rcArea.top += (rcArea.Height() - nTemp) / 2;
-		dc.DrawText(strText, &rcArea, DT_EDITCONTROL | DT_WORDBREAK);
-	}
-	// 天
-    for (int i = 1; i <= m_nWeekNum; ++i)
-    {
-        for (int j = 0; j < MAX_WEEK_COL; ++j)
-        {
-			if (0 == m_dayArea[i][j].date().GetTime())
-			{
-				continue;
-			}
-
-			strText.Format(_T(" %2d日"), m_dayArea[i][j].date().GetDay());
-			rcTemp = m_dayArea[i][j].rcDay();
-			nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
-			rcArea = m_dayArea[i][j].rcDay();
-			rcArea.bottom = rcArea.top + DAY_HEIGHT;
-			rcArea.top += (rcArea.Height() - nTemp) / 2;
-			dc.DrawText(strText, &rcArea, DT_LEFT | DT_EDITCONTROL | DT_WORDBREAK);
-
-			strText = m_dayArea[i][j].lunar() + _T(" ");
-			//dc.DrawText(strText, &rcArea, DT_RIGHT | DT_EDITCONTROL | DT_WORDBREAK);
-        }
-    }
+	// 文字....
+	PaintText(dc);
 }
 
 
 void CMiniCalendarDlg::InitDateInfo()
 {
-	CTime ct = CTime::GetCurrentTime();
+	CTime ct = CTime::GetTickCount();
 	
 	int nYear = ct.GetYear();
 	int nMonth = ct.GetMonth();
@@ -380,7 +332,7 @@ void CMiniCalendarDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CMiniCalendarDlg::CheckDay()
 {
-	CTime ct = CTime::GetCurrentTime();
+	CTime ct = CTime::GetTickCount();
 	if (ct.GetDay() != m_tToday.GetDay() && ct.GetMonth() == m_tToday.GetMonth())	// 时间有变化
 	{
 		m_tToday = ct;
@@ -402,4 +354,97 @@ void CMiniCalendarDlg::InvalidateDay()
 void CMiniCalendarDlg::InvalidateMonth()
 {
 
+}
+
+
+void CMiniCalendarDlg::PaintText(CPaintDC& dc)
+{
+	// 日期
+	dc.SelectObject(&m_fontDate);
+	CRect rcArea = m_rcFakeTitle;
+	CRect rcTemp = rcArea;
+	CString strText = m_tToday.Format(_T("%Y年%m月"));
+	int nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
+	rcArea.top += (rcArea.Height() - nTemp) / 2;
+	rcArea.left += 64;
+	dc.DrawText(strText, &rcArea, DT_EDITCONTROL | DT_WORDBREAK);
+
+	dc.SelectObject(&m_fontDay);
+	// 周次
+	rcArea = CRect(m_dayArea[1][0].rect().left, m_dayArea[1][0].rect().top,
+		m_dayArea[1][0].rect().right, m_dayArea[m_nWeekNum][0].rect().bottom);
+	dc.FillSolidRect(rcArea, WEEK_NUM_COLOR);
+	for (int i = 1; i <= m_nWeekNum; ++i)
+	{
+		strText = m_dayArea[i][1].date().Format(_T("%U周"));
+		rcTemp = m_dayArea[i][0].rect();
+		nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
+		rcArea = m_dayArea[i][0].rect();
+		rcArea.top += (rcArea.Height() - nTemp) / 2;
+		dc.DrawText(strText, &rcArea, DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
+	}
+
+	// 星期头部
+	rcArea = CRect(m_dayArea[0][1].rect().left, m_dayArea[0][0].rect().top,
+		m_dayArea[0][MAX_WEEK_COL - 1].rect().right, m_dayArea[0][0].rect().bottom);
+	dc.FillSolidRect(rcArea, WEEK_NAME_COLOR);
+	for (int i = 0; i < MAX_WEEK_COL; i++)
+	{
+		strText = CString(_T("    ")) + _date::week.Day(i);
+		rcTemp = m_dayArea[0][i].rect();
+		nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
+		rcArea = m_dayArea[0][i].rect();
+		rcArea.top += (rcArea.Height() - nTemp) / 2;
+		dc.DrawText(strText, &rcArea, DT_EDITCONTROL | DT_WORDBREAK);
+	}
+	// 天
+	for (int i = 1; i <= m_nWeekNum; ++i)
+	{
+		for (int j = 0; j < MAX_WEEK_COL; ++j)
+		{
+			if (0 == m_dayArea[i][j].date().GetTime())
+			{
+				continue;
+			}
+
+			if (m_dayArea[i][j].is_today())
+			{
+				dc.SetTextColor(WHITE_COLOR);
+			}
+
+			strText.Format(_T(" %2d日"), m_dayArea[i][j].date().GetDay());
+			rcTemp = m_dayArea[i][j].rect();
+			nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
+			rcArea = m_dayArea[i][j].rect();
+			rcArea.bottom = rcArea.top + DAY_HEIGHT;
+			rcArea.top += (rcArea.Height() - nTemp) / 2;
+			dc.DrawText(strText, &rcArea, DT_LEFT | DT_EDITCONTROL | DT_WORDBREAK);
+
+			strText = m_dayArea[i][j].lunar() + _T(" ");
+			dc.DrawText(strText, &rcArea, DT_RIGHT | DT_EDITCONTROL | DT_WORDBREAK);
+
+			if (m_dayArea[i][j].is_today())
+			{
+				dc.SetTextColor(BLACK_COLOR);
+			}
+		}
+	}
+}
+
+void CMiniCalendarDlg::PaintColor(CPaintDC& dc)
+{
+	for (int i = 1; i <= m_nWeekNum; ++i)
+	{
+		for (int j = 1; j < MAX_WEEK_COL; ++j)
+		{
+			if (!m_dayArea[i][j].is_today() && m_dayArea[i][j].select())
+			{
+				dc.FillSolidRect(m_dayArea[i][j].rect(), SELECT_DAY_COLOR);
+			}
+			if (m_dayArea[i][j].is_today())
+			{
+				dc.FillSolidRect(m_dayArea[i][j].rect(), TODAY_COLOR);
+			}
+		}
+	}
 }

@@ -38,7 +38,9 @@ public:
 	_date::DAY_INFO m_dayArea[MAX_WEEK_ROW][MAX_WEEK_COL];  // 第0行用来显示星期头
     int m_nWeekNum;
     void SetDayRect(const CRect& rcClient);
-    void DrawDay(CPaintDC& dc);
+	void DrawCanlendar(CPaintDC& dc);
+	void PaintText(CPaintDC& dc);
+	void PaintColor(CPaintDC& dc);
 
 	CPen m_penLine;
 	CFont m_fontDay;
