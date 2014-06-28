@@ -113,13 +113,12 @@ BOOL CMiniCalendarDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	// TODO: 在此添加额外的初始化代码
 	SetWindowText(_T("MiniCanlendar"));
 	MoveWindow(0, 0, 1024, 600);
 
 	InitDateInfo();
 
-	SetTimer(CHECK_EVENT, 1000, NULL);
+	SetTimer(CHECK_EVENT, 500, NULL);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -183,7 +182,7 @@ BOOL CMiniCalendarDlg::OnEraseBkgnd(CDC* pDC)
 {
     CRect rcClient;
     GetClientRect(rcClient);
-    pDC->FillSolidRect(rcClient, RGB(248, 248, 248));
+	pDC->FillSolidRect(rcClient, DEFAULT_BKG_COLOR);
 
     return TRUE;
 }
@@ -282,11 +281,17 @@ void CMiniCalendarDlg::DrawCanlendar(CPaintDC& dc)
 	PaintText(dc);
 }
 
-
 void CMiniCalendarDlg::InitDateInfo()
 {
+	for (int i = 1; i <= m_nWeekNum; ++i)
+	{
+		for (int j = 1; j < MAX_WEEK_COL; ++j)
+		{
+			m_dayArea[i][j].clear();
+		}
+	}
+
 	CTime ct = CTime::GetTickCount();
-	
 	int nYear = ct.GetYear();
 	int nMonth = ct.GetMonth();
 	int nMonthDay = _date::GetMonthDay(nMonth, ct.GetYear());
@@ -314,6 +319,18 @@ void CMiniCalendarDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	if (m_rcFakeTitle.PtInRect(point))
 	{
 		PostMessage(WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(point.x, point.y));
+	}
+	else
+	{
+		if (0 > GetKeyState(VK_CONTROL))	// 按下ctrl
+		{
+			AddSelect(point);
+		}
+		else
+		{
+			UnselectAll();
+			AddSelect(point);
+		}
 	}
 
 	CDialog::OnLButtonDown(nFlags, point);
@@ -347,13 +364,26 @@ void CMiniCalendarDlg::CheckDay()
 
 void CMiniCalendarDlg::InvalidateDay()
 {
-	InvalidateRect(m_rcFakeTitle);
-	// 当天的颜色需要修改位置
+	InvalidateRect(m_lastToday->rect());
+	for (int i = 1; i <= m_nWeekNum; ++i)
+	{
+		for (int j = 1; j < MAX_WEEK_COL; ++j)
+		{
+			if (m_dayArea[i][j].is_today())
+			{
+				TRACE("today:%d-%d\n", i, j);
+				m_lastToday = &m_dayArea[i][j];
+				break;
+			}
+		}
+	}
+	InvalidateRect(m_lastToday->rect());
 }
 
 void CMiniCalendarDlg::InvalidateMonth()
 {
-
+	InitDateInfo();
+	Invalidate(TRUE);
 }
 
 
@@ -412,15 +442,16 @@ void CMiniCalendarDlg::PaintText(CPaintDC& dc)
 				dc.SetTextColor(WHITE_COLOR);
 			}
 
-			strText.Format(_T(" %2d日"), m_dayArea[i][j].date().GetDay());
+			strText.Format(_T("%2d日"), m_dayArea[i][j].date().GetDay());
 			rcTemp = m_dayArea[i][j].rect();
 			nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
 			rcArea = m_dayArea[i][j].rect();
 			rcArea.bottom = rcArea.top + DAY_HEIGHT;
 			rcArea.top += (rcArea.Height() - nTemp) / 2;
-			dc.DrawText(strText, &rcArea, DT_LEFT | DT_EDITCONTROL | DT_WORDBREAK);
-
-			strText = m_dayArea[i][j].lunar() + _T(" ");
+			rcArea.left += 7;
+			dc.DrawText(strText, &rcArea, DT_LEFT | DT_EDITCONTROL | DT_WORDBREAK); //OutputDebugString(strText);
+			strText = m_dayArea[i][j].lunar();
+			rcArea.right -= 7;
 			dc.DrawText(strText, &rcArea, DT_RIGHT | DT_EDITCONTROL | DT_WORDBREAK);
 
 			if (m_dayArea[i][j].is_today())
@@ -433,18 +464,78 @@ void CMiniCalendarDlg::PaintText(CPaintDC& dc)
 
 void CMiniCalendarDlg::PaintColor(CPaintDC& dc)
 {
+	TRACE("paint-color\n");
 	for (int i = 1; i <= m_nWeekNum; ++i)
 	{
 		for (int j = 1; j < MAX_WEEK_COL; ++j)
 		{
 			if (!m_dayArea[i][j].is_today() && m_dayArea[i][j].select())
 			{
+				//TRACE("select:%d-%d\n", i, j);
 				dc.FillSolidRect(m_dayArea[i][j].rect(), SELECT_DAY_COLOR);
+				continue;
 			}
 			if (m_dayArea[i][j].is_today())
 			{
+				TRACE("today:%d-%d\n", i, j);
 				dc.FillSolidRect(m_dayArea[i][j].rect(), TODAY_COLOR);
+				m_lastToday = &m_dayArea[i][j];
+				continue;
 			}
+			dc.FillSolidRect(m_dayArea[i][j].rect(), DEFAULT_BKG_COLOR);
+		}
+	}
+}
+
+void CMiniCalendarDlg::UnselectAll()
+{
+	for (std::list<_date::DAY_INFO*>::iterator itr = m_selectDay.begin();
+		itr != m_selectDay.end(); ++itr)
+	{
+		(*itr)->SetSelect(false);
+		InvalidateRect((*itr)->rect());
+	}
+
+	m_selectDay.clear();
+}
+
+void CMiniCalendarDlg::AddSelect(CPoint pt)
+{
+	for (int i = 1; i <= m_nWeekNum; ++i)
+	{
+		for (int j = 1; j < MAX_WEEK_COL; ++j)
+		{
+			if (m_dayArea[i][j].rect().PtInRect(pt))
+			{
+				if (!m_dayArea[i][j].select())
+				{
+					m_dayArea[i][j].SetSelect(true);
+					m_selectDay.push_back(&m_dayArea[i][j]);
+					InvalidateRect(m_dayArea[i][j].rect());
+				}
+				else
+				{
+					m_dayArea[i][j].SetSelect(false);
+					RemoveSelect(i, j);
+					InvalidateRect(m_dayArea[i][j].rect());
+				}
+			}
+		}
+	}
+
+	TRACE("select size:%d\n", m_selectDay.size());
+}
+
+
+void CMiniCalendarDlg::RemoveSelect(int i, int j)
+{
+	for (std::list<_date::DAY_INFO*>::iterator itr = m_selectDay.begin();
+		itr != m_selectDay.end(); ++itr)
+	{
+		if ((*itr) == &m_dayArea[i][j])
+		{
+			m_selectDay.erase(itr);
+			break;
 		}
 	}
 }

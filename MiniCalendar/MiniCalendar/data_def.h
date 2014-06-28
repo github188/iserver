@@ -11,7 +11,7 @@ const int DATE_BASE_HEIGHT  = 35;
 const int WEEK_NAME_HEIGHT  = 25;
 const int DAY_HEIGHT		= 24;
 const int CHECK_EVENT	    = 1;
-const int WEEK_NUM_WIDTH	= 24;
+const int WEEK_NUM_WIDTH	= 21;
 
 const COLORREF BKG_LINE_COLOR	= RGB(222, 222, 222);
 const COLORREF WEEK_NUM_COLOR	= RGB(250, 250, 222);
@@ -20,6 +20,7 @@ const COLORREF TODAY_COLOR		= RGB(0, 114, 198);
 const COLORREF SELECT_DAY_COLOR	= RGB(153, 200, 233);
 const COLORREF WHITE_COLOR		= RGB(255, 255, 255);
 const COLORREF BLACK_COLOR		= RGB(0, 0, 0);
+const COLORREF DEFAULT_BKG_COLOR = RGB(248, 248, 248);
 
 namespace _date
 {
@@ -39,6 +40,13 @@ namespace _date
 		{
 
 		}
+		void clear()
+		{
+			m_rcDay = CRect(0, 0, 0, 0);
+			m_date = CTime(0);
+			m_bSelect = false;
+		}
+
 		void SetRect(const CRect& rc)
 		{
 			m_rcDay.CopyRect(rc);

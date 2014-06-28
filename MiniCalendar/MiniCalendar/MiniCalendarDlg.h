@@ -42,6 +42,9 @@ public:
 	void PaintText(CPaintDC& dc);
 	void PaintColor(CPaintDC& dc);
 
+	_date::DAY_INFO* m_lastToday;
+	std::list<_date::DAY_INFO*> m_selectDay;
+
 	CPen m_penLine;
 	CFont m_fontDay;
 	CFont m_fontDate;
@@ -60,4 +63,7 @@ public:
 
 	void InvalidateDay();
 	void InvalidateMonth();
+	void UnselectAll();
+	void AddSelect(CPoint pt);
+	void RemoveSelect(int i, int j);
 };
