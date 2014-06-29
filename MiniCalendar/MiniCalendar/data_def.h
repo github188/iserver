@@ -42,7 +42,7 @@ namespace _date
 		}
 		void clear()
 		{
-			m_rcDay = CRect(0, 0, 0, 0);
+			//m_rcDay = CRect(0, 0, 0, 0);
 			m_date = CTime(0);
 			m_bSelect = false;
 		}

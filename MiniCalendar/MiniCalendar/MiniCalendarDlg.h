@@ -64,6 +64,6 @@ public:
 	void InvalidateDay();
 	void InvalidateMonth();
 	void UnselectAll();
-	void AddSelect(CPoint pt);
+	void AddSelect(CPoint pt, bool bCtrl);
 	void RemoveSelect(int i, int j);
 };

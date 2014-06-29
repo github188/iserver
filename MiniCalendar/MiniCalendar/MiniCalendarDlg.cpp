@@ -322,15 +322,8 @@ void CMiniCalendarDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 	else
 	{
-		if (0 > GetKeyState(VK_CONTROL))	// 按下ctrl
-		{
-			AddSelect(point);
-		}
-		else
-		{
-			UnselectAll();
-			AddSelect(point);
-		}
+
+		AddSelect(point, (0 > GetKeyState(VK_CONTROL)));
 	}
 
 	CDialog::OnLButtonDown(nFlags, point);
@@ -471,7 +464,6 @@ void CMiniCalendarDlg::PaintColor(CPaintDC& dc)
 		{
 			if (!m_dayArea[i][j].is_today() && m_dayArea[i][j].select())
 			{
-				//TRACE("select:%d-%d\n", i, j);
 				dc.FillSolidRect(m_dayArea[i][j].rect(), SELECT_DAY_COLOR);
 				continue;
 			}
@@ -499,7 +491,7 @@ void CMiniCalendarDlg::UnselectAll()
 	m_selectDay.clear();
 }
 
-void CMiniCalendarDlg::AddSelect(CPoint pt)
+void CMiniCalendarDlg::AddSelect(CPoint pt, bool bCtrl)
 {
 	for (int i = 1; i <= m_nWeekNum; ++i)
 	{
@@ -507,17 +499,27 @@ void CMiniCalendarDlg::AddSelect(CPoint pt)
 		{
 			if (m_dayArea[i][j].rect().PtInRect(pt))
 			{
-				if (!m_dayArea[i][j].select())
+				if (!m_dayArea[i][j].select() && bCtrl)		// 多选 +1
 				{
 					m_dayArea[i][j].SetSelect(true);
 					m_selectDay.push_back(&m_dayArea[i][j]);
 					InvalidateRect(m_dayArea[i][j].rect());
 				}
-				else
+				else if (m_dayArea[i][j].select() && bCtrl)	// 多选 -1
 				{
 					m_dayArea[i][j].SetSelect(false);
 					RemoveSelect(i, j);
 					InvalidateRect(m_dayArea[i][j].rect());
+				}
+				else if (!m_dayArea[i][j].select() && !bCtrl)	// 单选
+				{
+					UnselectAll();
+					m_dayArea[i][j].SetSelect(true);
+					m_selectDay.push_back(&m_dayArea[i][j]);
+					InvalidateRect(m_dayArea[i][j].rect());
+				}
+				else if (m_dayArea[i][j].select() && !bCtrl)
+				{
 				}
 			}
 		}
