@@ -47,7 +47,8 @@ END_MESSAGE_MAP()
 
 CMiniCalendarDlg::CMiniCalendarDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CMiniCalendarDlg::IDD, pParent)
-    , m_nWeekNum(5)
+    , m_nWeekNum(6)
+    , m_bInit(FALSE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
@@ -67,7 +68,9 @@ CMiniCalendarDlg::CMiniCalendarDlg(CWnd* pParent /*=NULL*/)
 
 void CMiniCalendarDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+    CDialog::DoDataExchange(pDX);
+    DDX_Control(pDX, IDC_BTN_PRE, m_btnPreMonth);
+    DDX_Control(pDX, IDC_BTN_NEXT, m_btnNextMonth);
 }
 
 BEGIN_MESSAGE_MAP(CMiniCalendarDlg, CDialog)
@@ -79,6 +82,9 @@ BEGIN_MESSAGE_MAP(CMiniCalendarDlg, CDialog)
     ON_WM_SIZE()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_TIMER()
+    ON_WM_LBUTTONUP()
+    ON_BN_CLICKED(IDC_BTN_PRE, &CMiniCalendarDlg::OnBnClickedBtnPre)
+    ON_BN_CLICKED(IDC_BTN_NEXT, &CMiniCalendarDlg::OnBnClickedBtnNext)
 END_MESSAGE_MAP()
 
 
@@ -114,11 +120,15 @@ BOOL CMiniCalendarDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	SetWindowText(_T("MiniCanlendar"));
-	MoveWindow(0, 0, 1024, 600);
 
-	InitDateInfo();
+	CTime ct = CTime::GetTickCount();
+	m_tToday = ct;
+	InitDateInfo(ct.GetYear(), ct.GetMonth());
 
 	SetTimer(CHECK_EVENT, 500, NULL);
+
+    m_bInit = TRUE;
+	MoveWindow(0, 0, 1024, 600);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -183,7 +193,6 @@ BOOL CMiniCalendarDlg::OnEraseBkgnd(CDC* pDC)
     CRect rcClient;
     GetClientRect(rcClient);
 	pDC->FillSolidRect(rcClient, DEFAULT_BKG_COLOR);
-
     return TRUE;
 }
 
@@ -194,7 +203,12 @@ void CMiniCalendarDlg::OnSize(UINT nType, int cx, int cy)
     GetClientRect(m_rcClient);
     m_rcClient.DeflateRect(ROUND_BLACK, ROUND_BLACK, ROUND_BLACK, ROUND_BLACK);
     SetDayRect(m_rcClient);
-	Invalidate(TRUE);
+	
+    if (m_bInit)
+    {
+        m_btnPreMonth.MoveWindow(m_rcPreBtn);
+        m_btnNextMonth.MoveWindow(m_rcNextBtn);
+    }
 }
 
 void CMiniCalendarDlg::DrawLines(CPaintDC& dc)
@@ -267,7 +281,17 @@ void CMiniCalendarDlg::SetDayRect(const CRect& rcClient)
 		m_dayArea[0][i].SetRect(CRect(nLeft, nTop, nRight, nBottom));
 	}
 
-	m_rcFakeTitle = CRect(m_rcClient.left, m_rcClient.top, m_rcClient.right, m_dayArea[0][0].rect().top);
+    nLeft = m_rcClient.left + LEFT_BLANK_WIDTH;
+    nRight = m_rcClient.left + LEFT_BLANK_WIDTH + BTN_WIDTH;
+    m_rcPreBtn = CRect(nLeft, m_rcClient.top+3, nRight, m_dayArea[0][0].rect().top-3);
+
+    nLeft = m_rcPreBtn.right + 4;
+    nRight = nLeft + 120;
+    m_rcFakeTitle = CRect(nLeft, m_rcClient.top, nRight, m_dayArea[0][0].rect().top);
+
+    nLeft = m_rcFakeTitle.right + 4;
+    nRight = nLeft + BTN_WIDTH;
+    m_rcNextBtn = CRect(nLeft, m_rcClient.top + 3, nRight, m_dayArea[0][0].rect().top - 3);
 }
 
 void CMiniCalendarDlg::DrawCanlendar(CPaintDC& dc)
@@ -281,7 +305,7 @@ void CMiniCalendarDlg::DrawCanlendar(CPaintDC& dc)
 	PaintText(dc);
 }
 
-void CMiniCalendarDlg::InitDateInfo()
+void CMiniCalendarDlg::InitDateInfo(int nYear, int nMonth)
 {
 	for (int i = 1; i <= m_nWeekNum; ++i)
 	{
@@ -291,10 +315,7 @@ void CMiniCalendarDlg::InitDateInfo()
 		}
 	}
 
-	CTime ct = CTime::GetTickCount();
-	int nYear = ct.GetYear();
-	int nMonth = ct.GetMonth();
-	int nMonthDay = _date::GetMonthDay(nMonth, ct.GetYear());
+	int nMonthDay = _date::GetMonthDay(nMonth, nYear);
 
 	CTime t;
 	int nWeekNum = 1;
@@ -304,14 +325,16 @@ void CMiniCalendarDlg::InitDateInfo()
 		int nWeekDay = t.GetDayOfWeek();
 		m_dayArea[nWeekNum][nWeekDay].SetDate(t);
 		m_dayArea[nWeekNum][nWeekDay].SetLunar(L"农历");
+		m_dayArea[nWeekNum][nWeekDay].SetMonthFlag(true);
 
 		if (7 == nWeekDay)
 		{
 			++nWeekNum;
 		}
 	}
-	m_nWeekNum = nWeekNum;
-	m_tToday = ct;
+	//m_nWeekNum = nWeekNum;
+
+    m_tDisplayMonth = CTime(nYear, nMonth, 1, 1, 1, 1);
 }
 
 void CMiniCalendarDlg::OnLButtonDown(UINT nFlags, CPoint point)
@@ -322,7 +345,6 @@ void CMiniCalendarDlg::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 	else
 	{
-
 		AddSelect(point, (0 > GetKeyState(VK_CONTROL)));
 	}
 
@@ -375,7 +397,8 @@ void CMiniCalendarDlg::InvalidateDay()
 
 void CMiniCalendarDlg::InvalidateMonth()
 {
-	InitDateInfo();
+	CTime ct = CTime::GetTickCount();
+	InitDateInfo(ct.GetYear(), ct.GetMonth());
 	Invalidate(TRUE);
 }
 
@@ -386,11 +409,10 @@ void CMiniCalendarDlg::PaintText(CPaintDC& dc)
 	dc.SelectObject(&m_fontDate);
 	CRect rcArea = m_rcFakeTitle;
 	CRect rcTemp = rcArea;
-	CString strText = m_tToday.Format(_T("%Y年%m月"));
+    CString strText = m_tDisplayMonth.Format(_T("%Y年%m月"));
 	int nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
 	rcArea.top += (rcArea.Height() - nTemp) / 2;
-	rcArea.left += 64;
-	dc.DrawText(strText, &rcArea, DT_EDITCONTROL | DT_WORDBREAK);
+    dc.DrawText(strText, &rcArea, DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
 
 	dc.SelectObject(&m_fontDay);
 	// 周次
@@ -442,10 +464,10 @@ void CMiniCalendarDlg::PaintText(CPaintDC& dc)
 			rcArea.bottom = rcArea.top + DAY_HEIGHT;
 			rcArea.top += (rcArea.Height() - nTemp) / 2;
 			rcArea.left += 7;
-			dc.DrawText(strText, &rcArea, DT_LEFT | DT_EDITCONTROL | DT_WORDBREAK); //OutputDebugString(strText);
+			dc.DrawText(strText, &rcArea, DT_LEFT | DT_EDITCONTROL | DT_WORDBREAK);
 			strText = m_dayArea[i][j].lunar();
 			rcArea.right -= 7;
-			dc.DrawText(strText, &rcArea, DT_RIGHT | DT_EDITCONTROL | DT_WORDBREAK);
+			//dc.DrawText(strText, &rcArea, DT_RIGHT | DT_EDITCONTROL | DT_WORDBREAK);
 
 			if (m_dayArea[i][j].is_today())
 			{
@@ -520,6 +542,13 @@ void CMiniCalendarDlg::AddSelect(CPoint pt, bool bCtrl)
 				}
 				else if (m_dayArea[i][j].select() && !bCtrl)
 				{
+					if (m_selectDay.size() > 1)
+					{
+						UnselectAll();
+						m_dayArea[i][j].SetSelect(true);
+						m_selectDay.push_back(&m_dayArea[i][j]);
+						InvalidateRect(m_dayArea[i][j].rect());
+					}
 				}
 			}
 		}
@@ -527,7 +556,6 @@ void CMiniCalendarDlg::AddSelect(CPoint pt, bool bCtrl)
 
 	TRACE("select size:%d\n", m_selectDay.size());
 }
-
 
 void CMiniCalendarDlg::RemoveSelect(int i, int j)
 {
@@ -540,4 +568,32 @@ void CMiniCalendarDlg::RemoveSelect(int i, int j)
 			break;
 		}
 	}
+}
+
+
+void CMiniCalendarDlg::OnBnClickedBtnPre()
+{
+    int nYear = m_tDisplayMonth.GetYear();
+    int nMonth = m_tDisplayMonth.GetMonth() - 1;
+    if (0 == nMonth)
+    {
+        --nYear;
+        nMonth = 12;
+    }
+    InitDateInfo(nYear, nMonth);
+    Invalidate(TRUE);
+}
+
+
+void CMiniCalendarDlg::OnBnClickedBtnNext()
+{
+    int nYear = m_tDisplayMonth.GetYear();
+    int nMonth = m_tDisplayMonth.GetMonth() + 1;
+    if (13 == nMonth)
+    {
+        ++nYear;
+        nMonth = 1;
+    }
+    InitDateInfo(nYear, nMonth);
+    Invalidate(TRUE);
 }

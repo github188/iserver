@@ -9,171 +9,186 @@ const int MAX_WEEK_ROW      = 7;
 const int MAX_WEEK_COL      = 8;
 const int DATE_BASE_HEIGHT  = 35;
 const int WEEK_NAME_HEIGHT  = 25;
-const int DAY_HEIGHT		= 24;
-const int CHECK_EVENT	    = 1;
-const int WEEK_NUM_WIDTH	= 21;
+const int DAY_HEIGHT        = 24;
+const int CHECK_EVENT       = 1;
+const int WEEK_NUM_WIDTH    = 21;
 
-const COLORREF BKG_LINE_COLOR	= RGB(222, 222, 222);
-const COLORREF WEEK_NUM_COLOR	= RGB(250, 250, 222);
-const COLORREF WEEK_NAME_COLOR	= RGB(225, 242, 250);
-const COLORREF TODAY_COLOR		= RGB(0, 114, 198);
-const COLORREF SELECT_DAY_COLOR	= RGB(153, 200, 233);
-const COLORREF WHITE_COLOR		= RGB(255, 255, 255);
-const COLORREF BLACK_COLOR		= RGB(0, 0, 0);
+const int LEFT_BLANK_WIDTH  = 30;
+const int BTN_WIDTH         = 24;
+
+const COLORREF BKG_LINE_COLOR   = RGB(222, 222, 222);
+const COLORREF WEEK_NUM_COLOR   = RGB(250, 250, 222);
+const COLORREF WEEK_NAME_COLOR  = RGB(225, 242, 250);
+const COLORREF TODAY_COLOR      = RGB(0, 114, 198);
+const COLORREF SELECT_DAY_COLOR = RGB(153, 200, 233);
+const COLORREF WHITE_COLOR      = RGB(255, 255, 255);
+const COLORREF BLACK_COLOR      = RGB(0, 0, 0);
 const COLORREF DEFAULT_BKG_COLOR = RGB(248, 248, 248);
+const COLORREF NOT_THIS_MONTH_COLOR = RGB(200, 200, 200);
 
 namespace _date
 {
-	typedef class _day_info
-	{
-	private:
-		CRect m_rcDay;
-		CTime m_date;
-		CString m_strLunarDate;
-		std::list<CString> strLog;
-		bool m_bSelect;
-	public:
-		_day_info()
-			: m_rcDay(CRect(0,0,0,0))
-			, m_date(CTime(0))
-			, m_bSelect(false)
-		{
+    typedef class _day_info
+    {
+    private:
+        CRect m_rcDay;
+        CTime m_date;
+        CString m_strLunarDate;
+        std::list<CString> strLog;
+        bool m_bSelect;
+        bool m_bThisMonth;
 
-		}
-		void clear()
-		{
-			//m_rcDay = CRect(0, 0, 0, 0);
-			m_date = CTime(0);
-			m_bSelect = false;
-		}
+    public:
+        _day_info()
+            : m_rcDay(CRect(0,0,0,0))
+            , m_date(CTime(0))
+            , m_bSelect(false)
+            , m_bThisMonth(false)
+        {
 
-		void SetRect(const CRect& rc)
-		{
-			m_rcDay.CopyRect(rc);
-		}
+        }
+        void clear()
+        {
+            //m_rcDay = CRect(0, 0, 0, 0);
+            m_date = CTime(0);
+            m_bSelect = false;
+        }
 
-		const CRect& rect() const
-		{
-			return m_rcDay;
-		}
+        void SetRect(const CRect& rc)
+        {
+            m_rcDay.CopyRect(rc);
+        }
 
-		void SetDate(const CTime& ct)
-		{
-			m_date = ct;
-		}
+        const CRect& rect() const
+        {
+            return m_rcDay;
+        }
 
-		const CTime& date() const
-		{
-			return m_date;
-		}
-		
-		void SetLunar(const CString& str)
-		{
-			m_strLunarDate = str;
-		}
+        void SetDate(const CTime& ct)
+        {
+            m_date = ct;
+        }
 
-		const CString& lunar() const
-		{
-			return m_strLunarDate;
-		}
-		void SetSelect(bool bSelect)
-		{
-			m_bSelect = bSelect;
-		}
-		bool select()
-		{
-			return m_bSelect;
-		}
-		bool is_today()
-		{
-			CTime ct = CTime::GetTickCount();
-			if (m_date.GetDay() == ct.GetDay() &&
-				m_date.GetMonth() == ct.GetMonth() &&
-				m_date.GetYear() == ct.GetYear())
-			{
-				return true;
-			}
-			return false;
-		}
-	}DAY_INFO;
+        const CTime& date() const
+        {
+            return m_date;
+        }
+        
+        void SetLunar(const CString& str)
+        {
+            m_strLunarDate = str;
+        }
+
+        const CString& lunar() const
+        {
+            return m_strLunarDate;
+        }
+        void SetSelect(bool bSelect)
+        {
+            m_bSelect = bSelect;
+        }
+        bool select()
+        {
+            return m_bSelect;
+        }
+        void SetMonthFlag(bool bFlag)
+        {
+            m_bThisMonth = bFlag;
+        }
+        bool this_month()
+        {
+            return m_bThisMonth;
+        }
+        bool is_today()
+        {
+            CTime ct = CTime::GetTickCount();
+            if (m_date.GetDay() == ct.GetDay() &&
+                m_date.GetMonth() == ct.GetMonth() &&
+                m_date.GetYear() == ct.GetYear())
+            {
+                return true;
+            }
+            return false;
+        }
+    }DAY_INFO;
 
 
 
-	const CString sunday = _T("星期日");
-	const CString monday = _T("星期一");
-	const CString tuesday = _T("星期二");
-	const CString wednesday = _T("星期三");
-	const CString thursday = _T("星期四");
-	const CString friday = _T("星期五");
-	const CString saturday = _T("星期六");
+    const CString sunday = _T("星期日");
+    const CString monday = _T("星期一");
+    const CString tuesday = _T("星期二");
+    const CString wednesday = _T("星期三");
+    const CString thursday = _T("星期四");
+    const CString friday = _T("星期五");
+    const CString saturday = _T("星期六");
 
-	class _Week
-	{
-	private:
-		CString m_strWeekName[MAX_WEEK_COL + 1];
-		CString m_strInvalide;
-	public:
-		_Week()
-		{
-			m_strWeekName[1] = sunday;
-			m_strWeekName[2] = monday;
-			m_strWeekName[3] = tuesday;
-			m_strWeekName[4] = wednesday;
-			m_strWeekName[5] = thursday;
-			m_strWeekName[6] = friday;
-			m_strWeekName[7] = saturday;
+    class _Week
+    {
+    private:
+        CString m_strWeekName[MAX_WEEK_COL + 1];
+        CString m_strInvalide;
+    public:
+        _Week()
+        {
+            m_strWeekName[1] = sunday;
+            m_strWeekName[2] = monday;
+            m_strWeekName[3] = tuesday;
+            m_strWeekName[4] = wednesday;
+            m_strWeekName[5] = thursday;
+            m_strWeekName[6] = friday;
+            m_strWeekName[7] = saturday;
 
-			m_strInvalide = _T("");
-		}
+            m_strInvalide = _T("");
+        }
 
-		CString& Day(int n)
-		{
-			if (n > 0 && n <= MAX_WEEK_COL)
-			{
-				return m_strWeekName[n];
-			}
-			return m_strInvalide;
-		}
-	};
-	static _Week week;
-	
-	static bool LeapYear(int nYear)
-	{
-		if (0 == nYear % 4 && 0 != nYear % 100)
-		{
-			return true;
-		}
-		if (0 == nYear % 400)
-		{
-			return true;
-		}
-		return false;
-	}
+        CString& Day(int n)
+        {
+            if (n > 0 && n <= MAX_WEEK_COL)
+            {
+                return m_strWeekName[n];
+            }
+            return m_strInvalide;
+        }
+    };
+    static _Week week;
+    
+    static bool LeapYear(int nYear)
+    {
+        if (0 == nYear % 4 && 0 != nYear % 100)
+        {
+            return true;
+        }
+        if (0 == nYear % 400)
+        {
+            return true;
+        }
+        return false;
+    }
 
-	static int GetMonthDay(int nMonth, int nYear)
-	{
-		switch (nMonth)
-		{
-		case 1:
-		case 3:
-		case 5:
-		case 7:
-		case 8:
-		case 10:
-		case 12:
-			return 31;
-		case 2:
-		{
-				  if (LeapYear(nYear))
-				  {
-					  return 29;
-				  }
-				  return 28;
-		}
-		default:
-			return 30;
-		}
-	}
+    static int GetMonthDay(int nMonth, int nYear)
+    {
+        switch (nMonth)
+        {
+        case 1:
+        case 3:
+        case 5:
+        case 7:
+        case 8:
+        case 10:
+        case 12:
+            return 31;
+        case 2:
+        {
+                  if (LeapYear(nYear))
+                  {
+                      return 29;
+                  }
+                  return 28;
+        }
+        default:
+            return 30;
+        }
+    }
 
 }
 #endif

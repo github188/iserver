@@ -4,6 +4,7 @@
 
 #pragma once
 #include "data_def.h"
+#include "afxwin.h"
 
 // CMiniCalendarDlg 对话框
 class CMiniCalendarDlg : public CDialog
@@ -55,7 +56,7 @@ public:
 	// 日期栏大小，作为假的标题栏
 	CRect m_rcFakeTitle;
 
-	void InitDateInfo();
+	void InitDateInfo(int nYear, int nMonth);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 
 	void CheckDay();
@@ -66,4 +67,13 @@ public:
 	void UnselectAll();
 	void AddSelect(CPoint pt, bool bCtrl);
 	void RemoveSelect(int i, int j);
+
+    BOOL m_bInit;
+	CRect m_rcPreBtn;
+	CRect m_rcNextBtn;
+    CButton m_btnPreMonth;
+    CButton m_btnNextMonth;
+    afx_msg void OnBnClickedBtnPre();
+    afx_msg void OnBnClickedBtnNext();
+    CTime m_tDisplayMonth;
 };
