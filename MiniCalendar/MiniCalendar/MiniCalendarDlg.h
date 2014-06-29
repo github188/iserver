@@ -76,4 +76,5 @@ public:
     afx_msg void OnBnClickedBtnPre();
     afx_msg void OnBnClickedBtnNext();
     CTime m_tDisplayMonth;
+    void InvalidateText();
 };

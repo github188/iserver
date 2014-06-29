@@ -287,7 +287,7 @@ void CMiniCalendarDlg::SetDayRect(const CRect& rcClient)
 
     nLeft = m_rcPreBtn.right + 4;
     nRight = nLeft + 120;
-    m_rcFakeTitle = CRect(nLeft, m_rcClient.top, nRight, m_dayArea[0][0].rect().top);
+    m_rcFakeTitle = CRect(nLeft, m_rcClient.top+1, nRight, m_dayArea[0][0].rect().top-1);
 
     nLeft = m_rcFakeTitle.right + 4;
     nRight = nLeft + BTN_WIDTH;
@@ -332,7 +332,39 @@ void CMiniCalendarDlg::InitDateInfo(int nYear, int nMonth)
 			++nWeekNum;
 		}
 	}
-	//m_nWeekNum = nWeekNum;
+    // 补充其他空白的地方
+    // 第一周前面会空，后两周后面会空
+    for (int i = MAX_WEEK_COL - 1; i > 0; --i)
+    {
+        if (0 == m_dayArea[1][i].date().GetTime())
+        {
+            CTime tTemp = m_dayArea[1][i + 1].date() - CTimeSpan(1, 0, 0, 0);
+            m_dayArea[1][i].SetDate(tTemp);
+            m_dayArea[1][i].SetLunar(L"农历");
+            m_dayArea[1][i].SetMonthFlag(false);
+        }
+    }
+    for (int i = m_nWeekNum - 1; i <= m_nWeekNum; ++i)
+    {
+        for (int j = 1; j < MAX_WEEK_COL; ++j)
+        {
+            if (0 == m_dayArea[i][j].date().GetTime())
+            {
+                CTime tTemp;
+                if (1 == j)
+                {
+                    tTemp = m_dayArea[i-1][MAX_WEEK_COL-1].date() + CTimeSpan(1, 0, 0, 0);
+                }
+                else
+                {
+                    tTemp = m_dayArea[i][j - 1].date() + CTimeSpan(1, 0, 0, 0);
+                }
+                m_dayArea[i][j].SetDate(tTemp);
+                m_dayArea[i][j].SetLunar(L"农历");
+                m_dayArea[i][j].SetMonthFlag(false);
+            }
+        }
+    }
 
     m_tDisplayMonth = CTime(nYear, nMonth, 1, 1, 1, 1);
 }
@@ -456,8 +488,12 @@ void CMiniCalendarDlg::PaintText(CPaintDC& dc)
 			{
 				dc.SetTextColor(WHITE_COLOR);
 			}
+            else if (!m_dayArea[i][j].this_month())
+            {
+                dc.SetTextColor(NOT_THIS_MONTH_COLOR);
+            }
 
-			strText.Format(_T("%2d日"), m_dayArea[i][j].date().GetDay());
+            strText.Format(_T("%2d日"), m_dayArea[i][j].date().GetDay());
 			rcTemp = m_dayArea[i][j].rect();
 			nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
 			rcArea = m_dayArea[i][j].rect();
@@ -469,10 +505,10 @@ void CMiniCalendarDlg::PaintText(CPaintDC& dc)
 			rcArea.right -= 7;
 			//dc.DrawText(strText, &rcArea, DT_RIGHT | DT_EDITCONTROL | DT_WORDBREAK);
 
-			if (m_dayArea[i][j].is_today())
+            if (m_dayArea[i][j].is_today() || !m_dayArea[i][j].this_month())
 			{
 				dc.SetTextColor(BLACK_COLOR);
-			}
+            }
 		}
 	}
 }
@@ -581,7 +617,7 @@ void CMiniCalendarDlg::OnBnClickedBtnPre()
         nMonth = 12;
     }
     InitDateInfo(nYear, nMonth);
-    Invalidate(TRUE);
+    InvalidateText();
 }
 
 
@@ -595,5 +631,19 @@ void CMiniCalendarDlg::OnBnClickedBtnNext()
         nMonth = 1;
     }
     InitDateInfo(nYear, nMonth);
-    Invalidate(TRUE);
+    InvalidateText();
+}
+
+
+void CMiniCalendarDlg::InvalidateText()
+{
+    InvalidateRect(m_rcFakeTitle);
+
+    for (int i = 1; i <= m_nWeekNum; ++i)
+    {
+        for (int j = 0; j < MAX_WEEK_COL; ++j)
+        {
+            InvalidateRect(m_dayArea[i][j].rect());
+        }
+    }
 }
