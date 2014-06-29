@@ -209,6 +209,14 @@ void CMiniCalendarDlg::OnSize(UINT nType, int cx, int cy)
         m_btnPreMonth.MoveWindow(m_rcPreBtn);
         m_btnNextMonth.MoveWindow(m_rcNextBtn);
     }
+
+    CRect rcTemp(m_rcClient);
+    rcTemp.bottom = m_rcFakeTitle.bottom;
+    rcTemp.left = m_rcNextBtn.right;
+    InvalidateRect(rcTemp);
+    rcTemp = m_rcClient;
+    rcTemp.top = m_rcFakeTitle.bottom;
+    InvalidateRect(rcTemp);
 }
 
 void CMiniCalendarDlg::DrawLines(CPaintDC& dc)
@@ -272,7 +280,7 @@ void CMiniCalendarDlg::SetDayRect(const CRect& rcClient)
 	}
 
 	// 星期头部
-	nTop = m_dayArea[1][0].rect().top - WEEK_NAME_HEIGHT;
+    nTop = m_rcClient.top + DATE_BASE_HEIGHT;
 	nBottom = m_dayArea[1][0].rect().top;
 	for (int i = 0; i < MAX_WEEK_COL; ++i)
 	{
@@ -281,6 +289,7 @@ void CMiniCalendarDlg::SetDayRect(const CRect& rcClient)
 		m_dayArea[0][i].SetRect(CRect(nLeft, nTop, nRight, nBottom));
 	}
 
+    // 按钮
     nLeft = m_rcClient.left + LEFT_BLANK_WIDTH;
     nRight = m_rcClient.left + LEFT_BLANK_WIDTH + BTN_WIDTH;
     m_rcPreBtn = CRect(nLeft, m_rcClient.top+3, nRight, m_dayArea[0][0].rect().top-3);
@@ -418,7 +427,6 @@ void CMiniCalendarDlg::InvalidateDay()
 		{
 			if (m_dayArea[i][j].is_today())
 			{
-				TRACE("today:%d-%d\n", i, j);
 				m_lastToday = &m_dayArea[i][j];
 				break;
 			}
@@ -515,7 +523,6 @@ void CMiniCalendarDlg::PaintText(CPaintDC& dc)
 
 void CMiniCalendarDlg::PaintColor(CPaintDC& dc)
 {
-	TRACE("paint-color\n");
 	for (int i = 1; i <= m_nWeekNum; ++i)
 	{
 		for (int j = 1; j < MAX_WEEK_COL; ++j)
@@ -527,7 +534,6 @@ void CMiniCalendarDlg::PaintColor(CPaintDC& dc)
 			}
 			if (m_dayArea[i][j].is_today())
 			{
-				TRACE("today:%d-%d\n", i, j);
 				dc.FillSolidRect(m_dayArea[i][j].rect(), TODAY_COLOR);
 				m_lastToday = &m_dayArea[i][j];
 				continue;
@@ -589,8 +595,6 @@ void CMiniCalendarDlg::AddSelect(CPoint pt, bool bCtrl)
 			}
 		}
 	}
-
-	TRACE("select size:%d\n", m_selectDay.size());
 }
 
 void CMiniCalendarDlg::RemoveSelect(int i, int j)

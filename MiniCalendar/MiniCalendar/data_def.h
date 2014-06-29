@@ -13,7 +13,7 @@ const int DAY_HEIGHT        = 24;
 const int CHECK_EVENT       = 1;
 const int WEEK_NUM_WIDTH    = 21;
 
-const int LEFT_BLANK_WIDTH  = 30;
+const int LEFT_BLANK_WIDTH  = 24;
 const int BTN_WIDTH         = 24;
 
 const COLORREF BKG_LINE_COLOR   = RGB(222, 222, 222);
