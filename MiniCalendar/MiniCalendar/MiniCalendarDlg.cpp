@@ -375,7 +375,7 @@ void CMiniCalendarDlg::InitDateInfo(int nYear, int nMonth)
         }
     }
 
-    m_tDisplayMonth = CTime(nYear, nMonth, 1, 1, 1, 1);
+    m_tDisplayMonth = CTime(nYear, nMonth, 1, 0, 0, 0);
 }
 
 void CMiniCalendarDlg::OnLButtonDown(UINT nFlags, CPoint point)
@@ -446,6 +446,7 @@ void CMiniCalendarDlg::InvalidateMonth()
 void CMiniCalendarDlg::PaintText(CPaintDC& dc)
 {
 	// ÈÕÆÚ
+    dc.SetTextColor(BLACK_COLOR);
 	dc.SelectObject(&m_fontDate);
 	CRect rcArea = m_rcFakeTitle;
 	CRect rcTemp = rcArea;
