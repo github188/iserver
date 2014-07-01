@@ -133,8 +133,7 @@ BOOL CMiniCalendarDlg::OnInitDialog()
     m_bInit = TRUE;
 	MoveWindow(0, 0, 1024, 600);
 
-    //m_trayMgr.LoadIconsFromBitmap(IDB_BITMAP_TRAYICO, RGB(255, 0, 255));
-    //m_trayMgr.SetTrayNotify(this->GetSafeHwnd(), WM_ICON_NOTIFY, CString() + "PCDVR接入精灵 - " + strDevTypeName);
+    m_trayMgr.SetTrayNotify(m_hWnd, WM_TRAY_MSG, m_hIcon, _T("MiniCalendar"), _T("迷你日历V1.0"));
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }

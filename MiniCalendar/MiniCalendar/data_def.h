@@ -16,6 +16,8 @@ const int WEEK_NUM_WIDTH    = 21;
 const int LEFT_BLANK_WIDTH  = 24;
 const int BTN_WIDTH         = 24;
 
+const int WM_TRAY_MSG       = WM_USER + 2014;
+
 const COLORREF BKG_LINE_COLOR   = RGB(222, 222, 222);
 const COLORREF WEEK_NUM_COLOR   = RGB(250, 250, 222);
 const COLORREF WEEK_NAME_COLOR  = RGB(225, 242, 250);
