@@ -71,6 +71,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\MiniCalendar.ico"
+IDI_ICON_TRAY           ICON                    "res\\TrayIcon.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -129,13 +130,10 @@ BEGIN
     BEGIN
         BLOCK "080403a8"
         BEGIN
-            VALUE "CompanyName", "TODO: <公司名>"
-            VALUE "FileDescription", "TODO: <文件说明>"
+            VALUE "FileDescription", "Created By JdDd"
             VALUE "FileVersion", "1.0.0.1"
             VALUE "InternalName", "MiniCalendar.exe"
-            VALUE "LegalCopyright", "TODO: (C) <公司名>。保留所有权利。"
             VALUE "OriginalFilename", "MiniCalendar.exe"
-            VALUE "ProductName", "TODO: <产品名>"
             VALUE "ProductVersion", "1.0.0.1"
         END
     END
@@ -177,6 +175,21 @@ BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU_TRAY MENU 
+BEGIN
+    POPUP "TRAY"
+    BEGIN
+        MENUITEM "配置",                          ID_TRAY_CONFIG
+        MENUITEM "退出",                          ID_TRAY_EXIT
+    END
+END
 
 
 /////////////////////////////////////////////////////////////////////////////

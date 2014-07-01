@@ -133,7 +133,7 @@ BOOL CMiniCalendarDlg::OnInitDialog()
     m_bInit = TRUE;
 	MoveWindow(0, 0, 1366, 768);
 
-    m_trayMgr.SetTrayNotify(m_hWnd, WM_TRAY_MSG, m_hIcon, _T("MiniCalendar"), _T("迷你日历V1.0"));
+    m_trayMgr.SetTrayNotify(m_hWnd, WM_TRAY_MSG, AfxGetApp()->LoadIcon(IDI_ICON_TRAY), _T("MiniCalendar"), _T("迷你日历V1.0"));
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -387,7 +387,8 @@ void CMiniCalendarDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	if (m_rcFakeTitle.PtInRect(point))
 	{
-		PostMessage(WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(point.x, point.y));
+		//PostMessage(WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(point.x, point.y));
+        JumpToday();
 	}
 	else
 	{
@@ -683,9 +684,9 @@ void CMiniCalendarDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 
 void CMiniCalendarDlg::ClearSelect(void)
 {
-    for (int i = 1; i < MAX_WEEK_COL; ++i)
+    for (int i = 1; i < m_nWeekNum; ++i)
     {
-        for (int j = 1; j < m_nWeekNum; ++j)
+        for (int j = 1; j < MAX_WEEK_COL; ++j)
         {
             if (m_dayArea[i][j].select())
             {
@@ -695,4 +696,18 @@ void CMiniCalendarDlg::ClearSelect(void)
             }
         }
     }
+}
+
+void CMiniCalendarDlg::JumpToday(void)
+{
+    if (m_tDisplayMonth.GetYear() == m_tToday.GetYear() &&
+        m_tDisplayMonth.GetMonth() == m_tToday.GetMonth())
+    {
+        return ;
+    }
+    int nYear = m_tToday.GetYear();
+    int nMonth = m_tToday.GetMonth();
+    ClearSelect();
+    InitDateInfo(nYear, nMonth);
+    InvalidateText();
 }

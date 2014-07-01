@@ -53,6 +53,8 @@ public:
     void AddSelect(CPoint pt, bool bCtrl);
     void RemoveSelect(int i, int j);
     void InvalidateText();
+    void ClearSelect(void);
+    void JumpToday(void);
 
 	_date::DAY_INFO* m_lastToday;
 	std::list<_date::DAY_INFO*> m_selectDay;
@@ -78,5 +80,4 @@ public:
     CTime m_tDisplayMonth;
 
     CTrayMgr2& m_trayMgr;
-    void ClearSelect(void);
 };

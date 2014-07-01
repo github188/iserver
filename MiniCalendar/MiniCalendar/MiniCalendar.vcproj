@@ -285,6 +285,10 @@
 				RelativePath=".\res\MiniCalendar.rc2"
 				>
 			</File>
+			<File
+				RelativePath=".\res\TrayIcon.ico"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"
