@@ -217,6 +217,14 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\TrayMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TrayMgr2.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"
@@ -249,6 +257,14 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TrayMgr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TrayMgr2.h"
 				>
 			</File>
 		</Filter>

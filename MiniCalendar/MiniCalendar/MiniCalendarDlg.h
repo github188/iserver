@@ -5,6 +5,7 @@
 #pragma once
 #include "data_def.h"
 #include "afxwin.h"
+#include "TrayMgr2.h"
 
 // CMiniCalendarDlg ¶Ô»°¿ò
 class CMiniCalendarDlg : public CDialog
@@ -75,4 +76,6 @@ public:
     CButton m_btnPreMonth;
     CButton m_btnNextMonth;
     CTime m_tDisplayMonth;
+
+    CTrayMgr2& m_trayMgr;
 };

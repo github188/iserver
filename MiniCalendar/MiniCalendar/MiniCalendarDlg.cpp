@@ -50,6 +50,7 @@ CMiniCalendarDlg::CMiniCalendarDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CMiniCalendarDlg::IDD, pParent)
     , m_nWeekNum(6)
     , m_bInit(FALSE)
+    , m_trayMgr(GetTrayMgr())
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
@@ -62,7 +63,7 @@ CMiniCalendarDlg::CMiniCalendarDlg(CWnd* pParent /*=NULL*/)
 	m_fontDate.CreatePointFontIndirect(&lf);
 
 	memset(&lf, 0, sizeof(lf));
-	lf.lfHeight = 100;
+	lf.lfHeight = 90;
 	_tcscpy_s(lf.lfFaceName, _T("微软雅黑"));
 	m_fontDay.CreatePointFontIndirect(&lf);
 }
@@ -131,6 +132,9 @@ BOOL CMiniCalendarDlg::OnInitDialog()
 
     m_bInit = TRUE;
 	MoveWindow(0, 0, 1024, 600);
+
+    //m_trayMgr.LoadIconsFromBitmap(IDB_BITMAP_TRAYICO, RGB(255, 0, 255));
+    //m_trayMgr.SetTrayNotify(this->GetSafeHwnd(), WM_ICON_NOTIFY, CString() + "PCDVR接入精灵 - " + strDevTypeName);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -504,7 +508,7 @@ void CMiniCalendarDlg::PaintText(CPaintDC& dc)
                 dc.SetTextColor(NOT_THIS_MONTH_COLOR);
             }
 
-            strText.Format(_T("%2d日"), m_dayArea[i][j].date().GetDay());
+            strText.Format(_T("%2d"), m_dayArea[i][j].date().GetDay());
 			rcTemp = m_dayArea[i][j].rect();
 			nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
 			rcArea = m_dayArea[i][j].rect();
@@ -530,18 +534,21 @@ void CMiniCalendarDlg::PaintColor(CPaintDC& dc)
 	{
 		for (int j = 1; j < MAX_WEEK_COL; ++j)
 		{
-			if (!m_dayArea[i][j].is_today() && m_dayArea[i][j].select())
+			if (m_dayArea[i][j].select())
 			{
 				dc.FillSolidRect(m_dayArea[i][j].rect(), SELECT_DAY_COLOR);
-				continue;
 			}
+            else
+            {
+                dc.FillSolidRect(m_dayArea[i][j].rect(), DEFAULT_BKG_COLOR);
+            }
 			if (m_dayArea[i][j].is_today())
 			{
-				dc.FillSolidRect(m_dayArea[i][j].rect(), TODAY_COLOR);
+                CRect rcTemp = m_dayArea[i][j].rect();
+                rcTemp.bottom = rcTemp.top + DAY_HEIGHT;
+				dc.FillSolidRect(rcTemp, TODAY_COLOR);
 				m_lastToday = &m_dayArea[i][j];
-				continue;
 			}
-			dc.FillSolidRect(m_dayArea[i][j].rect(), DEFAULT_BKG_COLOR);
 		}
 	}
 }
