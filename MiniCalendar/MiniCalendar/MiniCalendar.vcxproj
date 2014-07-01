@@ -110,23 +110,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DateDlg.cpp" />
     <ClCompile Include="MiniCalendar.cpp" />
     <ClCompile Include="MiniCalendarDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TrayMgr2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="data_def.h" />
+    <ClInclude Include="DateDlg.h" />
     <ClInclude Include="MiniCalendar.h" />
     <ClInclude Include="MiniCalendarDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TrayMgr2.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\MiniCalendar.ico" />
+    <Image Include="res\TrayIcon.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MiniCalendar.rc" />

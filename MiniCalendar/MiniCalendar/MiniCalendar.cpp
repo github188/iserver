@@ -58,6 +58,7 @@ BOOL CMiniCalendarApp::InitInstance()
 	// 更改用于存储设置的注册表项
 	// TODO: 应适当修改该字符串，
 	// 例如修改为公司或组织名
+    AfxInitRichEdit();
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
 
     _tsetlocale(LC_ALL, _T("Chinese-simplified"));
