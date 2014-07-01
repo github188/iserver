@@ -97,6 +97,15 @@ BEGIN
     PUSHBUTTON      ">>",IDC_BTN_NEXT,55,30,13,14,BS_FLAT
 END
 
+IDD_DLG_EVENT DIALOGEX 0, 0, 309, 176
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Event"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,198,155,50,14
+    PUSHBUTTON      "取消",IDCANCEL,252,155,50,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -157,6 +166,14 @@ BEGIN
     BEGIN
         RIGHTMARGIN, 201
         BOTTOMMARGIN, 89
+    END
+
+    IDD_DLG_EVENT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 302
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 169
     END
 END
 #endif    // APSTUDIO_INVOKED

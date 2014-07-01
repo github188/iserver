@@ -85,6 +85,7 @@ BEGIN_MESSAGE_MAP(CMiniCalendarDlg, CDialog)
     ON_WM_LBUTTONUP()
     ON_BN_CLICKED(IDC_BTN_PRE, &CMiniCalendarDlg::OnBnClickedBtnPre)
     ON_BN_CLICKED(IDC_BTN_NEXT, &CMiniCalendarDlg::OnBnClickedBtnNext)
+    ON_WM_LBUTTONDBLCLK()
 END_MESSAGE_MAP()
 
 
@@ -651,4 +652,12 @@ void CMiniCalendarDlg::InvalidateText()
             InvalidateRect(m_dayArea[i][j].rect());
         }
     }
+}
+
+
+void CMiniCalendarDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+    MessageBox(_T("DDD"));
+
+    CDialog::OnLButtonDblClk(nFlags, point);
 }

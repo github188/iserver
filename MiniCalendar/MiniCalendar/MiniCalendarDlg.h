@@ -32,16 +32,26 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
     afx_msg BOOL OnEraseBkgnd(CDC* pDC);
-    void DrawLines(CPaintDC& dc);
     afx_msg void OnSize(UINT nType, int cx, int cy);
+    afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+    afx_msg void OnTimer(UINT_PTR nIDEvent);
+    afx_msg void OnBnClickedBtnPre();
+    afx_msg void OnBnClickedBtnNext();
+    afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 
-    CRect m_rcClient;
-	_date::DAY_INFO m_dayArea[MAX_WEEK_ROW][MAX_WEEK_COL];  // 第0行用来显示星期头
-    int m_nWeekNum;
+    void DrawLines(CPaintDC& dc);
     void SetDayRect(const CRect& rcClient);
 	void DrawCanlendar(CPaintDC& dc);
 	void PaintText(CPaintDC& dc);
-	void PaintColor(CPaintDC& dc);
+    void PaintColor(CPaintDC& dc);
+    void InitDateInfo(int nYear, int nMonth);
+    void CheckDay();
+    void InvalidateDay();
+    void InvalidateMonth();
+    void UnselectAll();
+    void AddSelect(CPoint pt, bool bCtrl);
+    void RemoveSelect(int i, int j);
+    void InvalidateText();
 
 	_date::DAY_INFO* m_lastToday;
 	std::list<_date::DAY_INFO*> m_selectDay;
@@ -49,32 +59,20 @@ public:
 	CPen m_penLine;
 	CFont m_fontDay;
 	CFont m_fontDate;
-	
+
+    CRect m_rcClient;
+    _date::DAY_INFO m_dayArea[MAX_WEEK_ROW][MAX_WEEK_COL];  // 第0行用来显示星期头
+    int m_nWeekNum;
 	// 当前时间
 	CTime m_tToday;
 
 	// 日期栏大小，作为假的标题栏
 	CRect m_rcFakeTitle;
 
-	void InitDateInfo(int nYear, int nMonth);
-	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-
-	void CheckDay();
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
-
-	void InvalidateDay();
-	void InvalidateMonth();
-	void UnselectAll();
-	void AddSelect(CPoint pt, bool bCtrl);
-	void RemoveSelect(int i, int j);
-
     BOOL m_bInit;
 	CRect m_rcPreBtn;
 	CRect m_rcNextBtn;
     CButton m_btnPreMonth;
     CButton m_btnNextMonth;
-    afx_msg void OnBnClickedBtnPre();
-    afx_msg void OnBnClickedBtnNext();
     CTime m_tDisplayMonth;
-    void InvalidateText();
 };
