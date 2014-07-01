@@ -122,7 +122,7 @@ BOOL CMiniCalendarDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	SetWindowText(_T("MiniCanlendar"));
+	SetWindowText(_T("迷你日历"));
 
 	CTime ct = CTime::GetTickCount();
 	m_tToday = ct;
@@ -131,7 +131,7 @@ BOOL CMiniCalendarDlg::OnInitDialog()
 	SetTimer(CHECK_EVENT, 500, NULL);
 
     m_bInit = TRUE;
-	MoveWindow(0, 0, 1024, 600);
+	MoveWindow(0, 0, 1366, 768);
 
     m_trayMgr.SetTrayNotify(m_hWnd, WM_TRAY_MSG, m_hIcon, _T("MiniCalendar"), _T("迷你日历V1.0"));
 
@@ -508,16 +508,16 @@ void CMiniCalendarDlg::PaintText(CPaintDC& dc)
             }
 
             strText.Format(_T("%2d"), m_dayArea[i][j].date().GetDay());
-			rcTemp = m_dayArea[i][j].rect();
-			nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
-			rcArea = m_dayArea[i][j].rect();
-			rcArea.bottom = rcArea.top + DAY_HEIGHT;
-			rcArea.top += (rcArea.Height() - nTemp) / 2;
-			rcArea.left += 7;
-			dc.DrawText(strText, &rcArea, DT_LEFT | DT_EDITCONTROL | DT_WORDBREAK);
-			strText = m_dayArea[i][j].lunar();
-			rcArea.right -= 7;
-			//dc.DrawText(strText, &rcArea, DT_RIGHT | DT_EDITCONTROL | DT_WORDBREAK);
+            rcTemp = m_dayArea[i][j].rect();
+            nTemp = dc.DrawText(strText, &rcTemp, DT_CALCRECT | DT_CENTER | DT_EDITCONTROL | DT_WORDBREAK);
+            rcArea = m_dayArea[i][j].rect();
+            rcArea.bottom = rcArea.top + DAY_HEIGHT;
+            rcArea.top += (rcArea.Height() - nTemp) / 2;
+            rcArea.left += 7;
+            dc.DrawText(strText, &rcArea, DT_LEFT | DT_EDITCONTROL | DT_WORDBREAK);
+            strText = m_dayArea[i][j].lunar();
+            rcArea.right -= 7;
+            dc.DrawText(strText, &rcArea, DT_RIGHT | DT_EDITCONTROL | DT_WORDBREAK);
 
             if (m_dayArea[i][j].is_today() || !m_dayArea[i][j].this_month())
 			{
@@ -629,6 +629,7 @@ void CMiniCalendarDlg::OnBnClickedBtnPre()
         --nYear;
         nMonth = 12;
     }
+    ClearSelect();
     InitDateInfo(nYear, nMonth);
     InvalidateText();
 }
@@ -643,6 +644,7 @@ void CMiniCalendarDlg::OnBnClickedBtnNext()
         ++nYear;
         nMonth = 1;
     }
+    ClearSelect();
     InitDateInfo(nYear, nMonth);
     InvalidateText();
 }
@@ -654,10 +656,19 @@ void CMiniCalendarDlg::InvalidateText()
 
     for (int i = 1; i <= m_nWeekNum; ++i)
     {
-        for (int j = 0; j < MAX_WEEK_COL; ++j)
+        for (int j = 1; j < MAX_WEEK_COL; ++j)
         {
-            InvalidateRect(m_dayArea[i][j].rect());
+            CRect rcTemp = m_dayArea[i][j].rect();
+            rcTemp.bottom = rcTemp.top + DAY_HEIGHT;
+            rcTemp.DeflateRect(1, 1, 1, 0);
+            InvalidateRect(rcTemp);
         }
+    }
+    for (int i = 1; i < m_nWeekNum; ++i)
+    {
+        CRect rcTemp = m_dayArea[i][0].rect();
+        rcTemp.DeflateRect(1, 1, 1, 1);
+        InvalidateRect(rcTemp);
     }
 }
 
@@ -668,4 +679,20 @@ void CMiniCalendarDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
     dlg.DoModal();
 
     CDialog::OnLButtonDblClk(nFlags, point);
+}
+
+void CMiniCalendarDlg::ClearSelect(void)
+{
+    for (int i = 1; i < MAX_WEEK_COL; ++i)
+    {
+        for (int j = 1; j < m_nWeekNum; ++j)
+        {
+            if (m_dayArea[i][j].select())
+            {
+                // 不需要set false, 会被清空
+                //m_dayArea[i][j].SetSelect(false);
+                InvalidateRect(m_dayArea[i][j].rect());
+            }
+        }
+    }
 }

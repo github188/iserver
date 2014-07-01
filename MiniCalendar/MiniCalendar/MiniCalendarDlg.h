@@ -78,4 +78,5 @@ public:
     CTime m_tDisplayMonth;
 
     CTrayMgr2& m_trayMgr;
+    void ClearSelect(void);
 };

@@ -12,6 +12,7 @@ const int WEEK_NAME_HEIGHT  = 25;
 const int DAY_HEIGHT        = 21;
 const int CHECK_EVENT       = 1;
 const int WEEK_NUM_WIDTH    = 21;
+const int DAY_WIDTH         = 32;
 
 const int LEFT_BLANK_WIDTH  = 24;
 const int BTN_WIDTH         = 24;
