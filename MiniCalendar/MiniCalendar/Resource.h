@@ -7,7 +7,6 @@
 #define IDS_ABOUTBOX                    101
 #define IDD_MINICALENDAR_DIALOG         102
 #define IDR_MAINFRAME                   128
-#define IDD_DIALOG1                     129
 #define IDD_DLG_EVENT                   129
 #define IDC_BTN_PRE                     1000
 #define IDC_BTN_NEXT                    1001
