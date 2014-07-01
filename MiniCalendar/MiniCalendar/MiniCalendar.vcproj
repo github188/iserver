@@ -186,6 +186,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\DateDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\EventDlg.cpp"
 				>
 			</File>
@@ -233,6 +237,10 @@
 			>
 			<File
 				RelativePath=".\data_def.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DateDlg.h"
 				>
 			</File>
 			<File

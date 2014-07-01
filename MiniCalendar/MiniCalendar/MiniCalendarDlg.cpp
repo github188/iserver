@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "MiniCalendar.h"
 #include "MiniCalendarDlg.h"
-#include "EventDlg.h"
+#include "DateDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -676,7 +676,7 @@ void CMiniCalendarDlg::InvalidateText()
 
 void CMiniCalendarDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
-    CEventDlg dlg;
+    CDateDlg dlg;
     dlg.DoModal();
 
     CDialog::OnLButtonDblClk(nFlags, point);
