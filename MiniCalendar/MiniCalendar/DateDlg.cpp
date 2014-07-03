@@ -10,8 +10,9 @@
 
 IMPLEMENT_DYNAMIC(CDateDlg, CDialog)
 
-CDateDlg::CDateDlg(CWnd* pParent /*=NULL*/)
+CDateDlg::CDateDlg(_date::_date_info& dateInfo, CWnd* pParent /*=NULL*/)
 	: CDialog(CDateDlg::IDD, pParent)
+    , m_dateInfo(dateInfo)
     , m_bInit(false)
 {
 

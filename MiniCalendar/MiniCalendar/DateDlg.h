@@ -1,5 +1,5 @@
 #pragma once
-
+#include "data_def.h"
 
 // CDateDlg 对话框
 
@@ -8,7 +8,7 @@ class CDateDlg : public CDialog
 	DECLARE_DYNAMIC(CDateDlg)
 
 public:
-	CDateDlg(CWnd* pParent = NULL);   // 标准构造函数
+    CDateDlg(_date::_date_info& dateInfo, CWnd* pParent = NULL);   // 标准构造函数
 	virtual ~CDateDlg();
 
 // 对话框数据
@@ -25,4 +25,5 @@ public:
     afx_msg BOOL OnEraseBkgnd(CDC* pDC);
     void InitCtrls();
     bool m_bInit;
+    _date::_date_info& m_dateInfo;
 };

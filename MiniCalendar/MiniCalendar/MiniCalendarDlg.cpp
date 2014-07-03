@@ -530,22 +530,28 @@ void CMiniCalendarDlg::PaintText(CPaintDC& dc)
 
 void CMiniCalendarDlg::PaintColor(CPaintDC& dc)
 {
+    CRect rcTemp;
 	for (int i = 1; i <= m_nWeekNum; ++i)
 	{
 		for (int j = 1; j < MAX_WEEK_COL; ++j)
 		{
 			if (m_dayArea[i][j].select())
 			{
-				dc.FillSolidRect(m_dayArea[i][j].rect(), SELECT_DAY_COLOR);
+                rcTemp = m_dayArea[i][j].rect();
+                rcTemp.DeflateRect(1, 1, 0, 0);
+				dc.FillSolidRect(rcTemp, SELECT_DAY_COLOR);
 			}
             else
             {
-                dc.FillSolidRect(m_dayArea[i][j].rect(), DEFAULT_BKG_COLOR);
+                rcTemp = m_dayArea[i][j].rect();
+                rcTemp.DeflateRect(1, 1, 0, 0);
+                dc.FillSolidRect(rcTemp, DEFAULT_BKG_COLOR);
             }
 			if (m_dayArea[i][j].is_today())
 			{
                 CRect rcTemp = m_dayArea[i][j].rect();
                 rcTemp.bottom = rcTemp.top + DAY_HEIGHT;
+                rcTemp.DeflateRect(1, 1, 0, 0);
 				dc.FillSolidRect(rcTemp, TODAY_COLOR);
 				m_lastToday = &m_dayArea[i][j];
 			}
@@ -676,9 +682,6 @@ void CMiniCalendarDlg::InvalidateText()
 
 void CMiniCalendarDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
-    CDateDlg dlg;
-    dlg.DoModal();
-
     CDialog::OnLButtonDblClk(nFlags, point);
 }
 

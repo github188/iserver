@@ -58,6 +58,7 @@ public:
 
 	_date::DAY_INFO* m_lastToday;
 	std::list<_date::DAY_INFO*> m_selectDay;
+    std::list<_date::_date_info> m_lsDate;
 
 	CPen m_penLine;
 	CFont m_fontDay;

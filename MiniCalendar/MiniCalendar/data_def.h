@@ -96,7 +96,6 @@ namespace _date
         CRect m_rcDay;
         CTime m_date;
         CString m_strLunarDate;
-        std::list<_date_info> lsDate;
         bool m_bSelect;
         bool m_bThisMonth;
 
