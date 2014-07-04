@@ -59,6 +59,7 @@ public:
     void ClearSelect(void);
     void JumpToday(void);
     void TrackMouseArea(CPoint& pt);
+    void NewDate();
 
 	_date::DAY_INFO* m_lastToday;
 	std::list<_date::DAY_INFO*> m_selectDay;

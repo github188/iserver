@@ -414,6 +414,8 @@ void CMiniCalendarDlg::OnLButtonUp(UINT nFlags, CPoint point)
     m_tLBMoving = CTime(0);
     m_tLBDown = CTime(0);
 
+    NewDate();
+
     CDialog::OnLButtonUp(nFlags, point);
 }
 
@@ -821,6 +823,17 @@ void CMiniCalendarDlg::TrackMouseArea(CPoint& pt)
 
 }
 
-
+void CMiniCalendarDlg::NewDate()
+{
+    for (int i = 1; i <= m_nWeekNum; ++i)
+    {
+        for (int j = 1; j < MAX_WEEK_COL; ++j)
+        {
+            if (m_dayArea[i][j].select())
+            {
+            }
+        }
+    }
+}
 
 
