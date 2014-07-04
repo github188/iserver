@@ -141,7 +141,7 @@ BOOL CMiniCalendarDlg::OnInitDialog()
     m_bInit = TRUE;
 	MoveWindow(0, 0, 1366, 768);
 
-    m_trayMgr.SetTrayNotify(m_hWnd, WM_TRAY_MSG, AfxGetApp()->LoadIcon(IDI_ICON_TRAY), _T("MiniCalendar"), _T("迷你日历V1.0"));
+    m_trayMgr.SetTrayNotify(m_hWnd, WM_TRAY_MSG, AfxGetApp()->LoadIcon(IDI_ICON_TRAY), _T("MiniCalendar"), _T("   迷你日历 V1.0,\r\n   赶紧计划起来吧~"));
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -868,7 +868,7 @@ void CMiniCalendarDlg::NewDate()
 
 void CMiniCalendarDlg::OnTrayConfig()
 {
-    // TODO:  在此添加命令处理程序代码
+    MessageBox(_T("暂时还没有配置功能呢"));
 }
 
 void CMiniCalendarDlg::OnTrayExit()

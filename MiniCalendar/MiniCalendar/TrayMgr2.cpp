@@ -39,6 +39,7 @@ void CTrayMgr2::SetTrayNotify(HWND hWnd, UINT cbMsgId, HICON hIcon, const CStrin
     m_nid.uTimeout = 10;
     _tcscpy_s(m_nid.szInfoTitle, ARRAYSIZE(m_nid.szInfoTitle), strTitle);
     _tcscpy_s(m_nid.szInfo, ARRAYSIZE(m_nid.szInfo), strMsg);
+    m_nid.dwInfoFlags = 0x00000004;
 
     Shell_NotifyIcon(NIM_ADD, &m_nid);
 
