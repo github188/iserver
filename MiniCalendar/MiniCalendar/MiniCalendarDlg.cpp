@@ -51,6 +51,7 @@ CMiniCalendarDlg::CMiniCalendarDlg(CWnd* pParent /*=NULL*/)
     , m_nWeekNum(6)
     , m_bInit(FALSE)
     , m_trayMgr(GetTrayMgr())
+    , m_bLbDown(FALSE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
@@ -88,6 +89,8 @@ BEGIN_MESSAGE_MAP(CMiniCalendarDlg, CDialog)
     ON_BN_CLICKED(IDC_BTN_PRE, &CMiniCalendarDlg::OnBnClickedBtnPre)
     ON_BN_CLICKED(IDC_BTN_NEXT, &CMiniCalendarDlg::OnBnClickedBtnNext)
     ON_WM_LBUTTONDBLCLK()
+    ON_WM_LBUTTONUP()
+    ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 
@@ -306,6 +309,9 @@ void CMiniCalendarDlg::SetDayRect(const CRect& rcClient)
     nLeft = m_rcFakeTitle.right + 4;
     nRight = nLeft + BTN_WIDTH;
     m_rcNextBtn = CRect(nLeft, m_rcClient.top + 3, nRight, m_dayArea[0][0].rect().top - 3);
+
+    m_rcDayArea = CRect(m_dayArea[1][1].rect().left, m_dayArea[1][1].rect().top,
+        m_dayArea[m_nWeekNum][MAX_WEEK_COL - 1].rect().right, m_dayArea[m_nWeekNum][MAX_WEEK_COL - 1].rect().bottom);
 }
 
 void CMiniCalendarDlg::DrawCanlendar(CPaintDC& dc)
@@ -390,14 +396,31 @@ void CMiniCalendarDlg::OnLButtonDown(UINT nFlags, CPoint point)
 		//PostMessage(WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(point.x, point.y));
         JumpToday();
 	}
-	else
+    else if (m_rcDayArea.PtInRect(point))
 	{
-		AddSelect(point, (0 > GetKeyState(VK_CONTROL)));
+		//AddSelect(point, (0 > GetKeyState(VK_CONTROL)));
+        AddSelect(point, FALSE);
+        m_bLbDown = TRUE;
+        TRACE("LB down\n");
 	}
 
 	CDialog::OnLButtonDown(nFlags, point);
 }
 
+void CMiniCalendarDlg::OnLButtonUp(UINT nFlags, CPoint point)
+{
+    m_bLbDown = FALSE;
+    TRACE("LB up\n");
+
+    CDialog::OnLButtonUp(nFlags, point);
+}
+
+void CMiniCalendarDlg::OnMouseMove(UINT nFlags, CPoint point)
+{
+    // TODO:  在此添加消息处理程序代码和/或调用默认值
+
+    CDialog::OnMouseMove(nFlags, point);
+}
 
 void CMiniCalendarDlg::OnTimer(UINT_PTR nIDEvent)
 {
@@ -714,3 +737,6 @@ void CMiniCalendarDlg::JumpToday(void)
     InitDateInfo(nYear, nMonth);
     InvalidateText();
 }
+
+
+

@@ -39,6 +39,8 @@ public:
     afx_msg void OnBnClickedBtnPre();
     afx_msg void OnBnClickedBtnNext();
     afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+    afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+    afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 
     void DrawLines(CPaintDC& dc);
     void SetDayRect(const CRect& rcClient);
@@ -65,6 +67,7 @@ public:
 	CFont m_fontDate;
 
     CRect m_rcClient;
+    CRect m_rcDayArea;
     _date::DAY_INFO m_dayArea[MAX_WEEK_ROW][MAX_WEEK_COL];  // 第0行用来显示星期头
     int m_nWeekNum;
 	// 当前时间
@@ -81,4 +84,5 @@ public:
     CTime m_tDisplayMonth;
 
     CTrayMgr2& m_trayMgr;
+    BOOL m_bLbDown;
 };
