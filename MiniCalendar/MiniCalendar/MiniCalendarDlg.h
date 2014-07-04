@@ -41,6 +41,7 @@ public:
     afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
     afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
     afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+    afx_msg void OnMouseLeave();
 
     void DrawLines(CPaintDC& dc);
     void SetDayRect(const CRect& rcClient);
@@ -57,6 +58,7 @@ public:
     void InvalidateText();
     void ClearSelect(void);
     void JumpToday(void);
+    void TrackMouseArea(CPoint& pt);
 
 	_date::DAY_INFO* m_lastToday;
 	std::list<_date::DAY_INFO*> m_selectDay;
@@ -85,4 +87,8 @@ public:
 
     CTrayMgr2& m_trayMgr;
     BOOL m_bLbDown;
+    BOOL m_bMouseTracking;
+
+    CTime m_tLBDown, m_tLBMoving;
+
 };

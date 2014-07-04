@@ -52,6 +52,7 @@ CMiniCalendarDlg::CMiniCalendarDlg(CWnd* pParent /*=NULL*/)
     , m_bInit(FALSE)
     , m_trayMgr(GetTrayMgr())
     , m_bLbDown(FALSE)
+    , m_bMouseTracking(TRUE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
@@ -91,6 +92,7 @@ BEGIN_MESSAGE_MAP(CMiniCalendarDlg, CDialog)
     ON_WM_LBUTTONDBLCLK()
     ON_WM_LBUTTONUP()
     ON_WM_MOUSEMOVE()
+    ON_WM_MOUSELEAVE()
 END_MESSAGE_MAP()
 
 
@@ -401,7 +403,6 @@ void CMiniCalendarDlg::OnLButtonDown(UINT nFlags, CPoint point)
 		//AddSelect(point, (0 > GetKeyState(VK_CONTROL)));
         AddSelect(point, FALSE);
         m_bLbDown = TRUE;
-        TRACE("LB down\n");
 	}
 
 	CDialog::OnLButtonDown(nFlags, point);
@@ -410,16 +411,41 @@ void CMiniCalendarDlg::OnLButtonDown(UINT nFlags, CPoint point)
 void CMiniCalendarDlg::OnLButtonUp(UINT nFlags, CPoint point)
 {
     m_bLbDown = FALSE;
-    TRACE("LB up\n");
+    m_tLBMoving = CTime(0);
+    m_tLBDown = CTime(0);
 
     CDialog::OnLButtonUp(nFlags, point);
 }
 
 void CMiniCalendarDlg::OnMouseMove(UINT nFlags, CPoint point)
 {
-    // TODO:  在此添加消息处理程序代码和/或调用默认值
+    if (m_bMouseTracking)
+    {
+        TRACKMOUSEEVENT tme;
+        tme.cbSize = sizeof(TRACKMOUSEEVENT);   //监控鼠标离开   
+        tme.dwFlags = TME_LEAVE;
+        tme.hwndTrack = this->m_hWnd;
+        if (TrackMouseEvent(&tme))
+        {
+            m_bMouseTracking = FALSE;            //其他鼠标进入时的操作      
+        }
+    }
+    if (m_bLbDown && m_rcDayArea.PtInRect(point))
+    {
+        TrackMouseArea(point);
+    }
 
     CDialog::OnMouseMove(nFlags, point);
+}
+
+void CMiniCalendarDlg::OnMouseLeave()
+{
+    m_bLbDown = FALSE;
+    m_tLBMoving = CTime(0);
+    m_tLBDown = CTime(0);
+    m_bMouseTracking = TRUE;
+
+    CDialog::OnMouseLeave();
 }
 
 void CMiniCalendarDlg::OnTimer(UINT_PTR nIDEvent)
@@ -620,15 +646,19 @@ void CMiniCalendarDlg::AddSelect(CPoint pt, bool bCtrl)
 					m_dayArea[i][j].SetSelect(true);
 					m_selectDay.push_back(&m_dayArea[i][j]);
 					InvalidateRect(m_dayArea[i][j].rect());
+                    // 记录鼠标点中区域的时间
+                    m_tLBDown = m_dayArea[i][j].date();
 				}
-				else if (m_dayArea[i][j].select() && !bCtrl)
+				else if (m_dayArea[i][j].select() && !bCtrl)    // 取消选择
 				{
 					if (m_selectDay.size() > 1)
 					{
 						UnselectAll();
 						m_dayArea[i][j].SetSelect(true);
 						m_selectDay.push_back(&m_dayArea[i][j]);
-						InvalidateRect(m_dayArea[i][j].rect());
+                        InvalidateRect(m_dayArea[i][j].rect());
+                        // 记录鼠标点中区域的时间
+                        m_tLBDown = m_dayArea[i][j].date();
 					}
 				}
 			}
@@ -737,6 +767,60 @@ void CMiniCalendarDlg::JumpToday(void)
     InitDateInfo(nYear, nMonth);
     InvalidateText();
 }
+
+void CMiniCalendarDlg::TrackMouseArea(CPoint& pt)
+{
+    TRACE("bad %d, %d\n", pt.x, pt.y);
+    for (int i = 1; i <= m_nWeekNum; ++i)
+    {
+        for (int j = 1; j < MAX_WEEK_COL; ++j)
+        {
+            TRACE("***(%d,%d) %d, %d, %d, %d\n",i,j, m_dayArea[i][j].rect().left, m_dayArea[i][j].rect().right,
+                m_dayArea[i][j].rect().top, m_dayArea[i][j].rect().bottom);
+            if (m_dayArea[i][j].rect().PtInRect(pt))
+            {
+                m_tLBMoving = m_dayArea[i][j].date();
+                TRACE("~~~ %I64d, %I64d\n", m_tLBMoving, m_tLBDown);
+                break;
+            }
+        }
+    }
+    if (CTime(0) == m_tLBMoving)
+    {
+        TRACE("bad track\n");
+        return;
+    }
+
+    for (int i = 1; i <= m_nWeekNum; ++i)
+    {
+        for (int j = 1; j < MAX_WEEK_COL; ++j)
+        {
+            if (min(m_tLBMoving, m_tLBDown) <= m_dayArea[i][j].date() &&
+                max(m_tLBMoving, m_tLBDown) >= m_dayArea[i][j].date())
+            {
+                if (m_dayArea[i][j].select())
+                {
+                    continue;
+                }
+                m_dayArea[i][j].SetSelect(true);
+                m_selectDay.push_back(&m_dayArea[i][j]);
+                InvalidateRect(m_dayArea[i][j].rect());
+                TRACE("select %d,%d\n", i, j);
+            }
+            else
+            {
+                if (m_dayArea[i][j].select())
+                {
+                    m_dayArea[i][j].SetSelect(false);
+                    RemoveSelect(i, j);
+                    InvalidateRect(m_dayArea[i][j].rect());
+                }
+            }
+        }
+    }
+
+}
+
 
 
 
