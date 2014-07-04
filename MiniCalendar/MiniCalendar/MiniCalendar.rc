@@ -142,9 +142,10 @@ BEGIN
     BEGIN
         BLOCK "080403a8"
         BEGIN
-            VALUE "FileDescription", "Created By JdDd"
+            VALUE "FileDescription", "√‘ƒ„»’¿˙"
             VALUE "FileVersion", "1.0.0.1"
             VALUE "InternalName", "MiniCalendar.exe"
+            VALUE "LegalCopyright", "Created By JdDd"
             VALUE "OriginalFilename", "MiniCalendar.exe"
             VALUE "ProductVersion", "1.0.0.1"
         END

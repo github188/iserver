@@ -93,6 +93,9 @@ BEGIN_MESSAGE_MAP(CMiniCalendarDlg, CDialog)
     ON_WM_LBUTTONUP()
     ON_WM_MOUSEMOVE()
     ON_WM_MOUSELEAVE()
+    ON_MESSAGE(WM_TRAY_MSG, &CMiniCalendarDlg::OnTrayMsg)
+    ON_COMMAND(ID_TRAY_CONFIG, &CMiniCalendarDlg::OnTrayConfig)
+    ON_COMMAND(ID_TRAY_EXIT, &CMiniCalendarDlg::OnTrayExit)
 END_MESSAGE_MAP()
 
 
@@ -141,6 +144,13 @@ BOOL CMiniCalendarDlg::OnInitDialog()
     m_trayMgr.SetTrayNotify(m_hWnd, WM_TRAY_MSG, AfxGetApp()->LoadIcon(IDI_ICON_TRAY), _T("MiniCalendar"), _T("迷你日历V1.0"));
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
+}
+
+void CMiniCalendarDlg::OnCancel()
+{
+    // TODO:  在此添加专用代码和/或调用基类
+    ShowWindow(SW_HIDE);
+    //CDialog::OnCancel();
 }
 
 void CMiniCalendarDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -227,6 +237,31 @@ void CMiniCalendarDlg::OnSize(UINT nType, int cx, int cy)
     rcTemp = m_rcClient;
     rcTemp.top = m_rcFakeTitle.bottom;
     InvalidateRect(rcTemp);
+}
+
+LRESULT CMiniCalendarDlg::OnTrayMsg(WPARAM wParam, LPARAM lParam)
+{
+    if (WM_RBUTTONDOWN == lParam)
+    {
+        CMenu menu;
+        if (menu.LoadMenu(IDR_MENU_TRAY))
+        {
+            CMenu* pPopup = menu.GetSubMenu(0);
+            ASSERT(pPopup != NULL);
+            CPoint point;
+            GetCursorPos(&point);
+            SetForegroundWindow();
+            pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
+        }
+    }
+    else if (WM_LBUTTONDBLCLK == lParam)
+    {
+        ShowWindow(SW_SHOW);
+    }
+    else
+    {
+    }
+    return 0;
 }
 
 void CMiniCalendarDlg::DrawLines(CPaintDC& dc)
@@ -772,24 +807,19 @@ void CMiniCalendarDlg::JumpToday(void)
 
 void CMiniCalendarDlg::TrackMouseArea(CPoint& pt)
 {
-    TRACE("bad %d, %d\n", pt.x, pt.y);
     for (int i = 1; i <= m_nWeekNum; ++i)
     {
         for (int j = 1; j < MAX_WEEK_COL; ++j)
         {
-            TRACE("***(%d,%d) %d, %d, %d, %d\n",i,j, m_dayArea[i][j].rect().left, m_dayArea[i][j].rect().right,
-                m_dayArea[i][j].rect().top, m_dayArea[i][j].rect().bottom);
             if (m_dayArea[i][j].rect().PtInRect(pt))
             {
                 m_tLBMoving = m_dayArea[i][j].date();
-                TRACE("~~~ %I64d, %I64d\n", m_tLBMoving, m_tLBDown);
                 break;
             }
         }
     }
     if (CTime(0) == m_tLBMoving)
     {
-        TRACE("bad track\n");
         return;
     }
 
@@ -807,7 +837,6 @@ void CMiniCalendarDlg::TrackMouseArea(CPoint& pt)
                 m_dayArea[i][j].SetSelect(true);
                 m_selectDay.push_back(&m_dayArea[i][j]);
                 InvalidateRect(m_dayArea[i][j].rect());
-                TRACE("select %d,%d\n", i, j);
             }
             else
             {
@@ -837,3 +866,12 @@ void CMiniCalendarDlg::NewDate()
 }
 
 
+void CMiniCalendarDlg::OnTrayConfig()
+{
+    // TODO:  在此添加命令处理程序代码
+}
+
+void CMiniCalendarDlg::OnTrayExit()
+{
+    CDialog::OnCancel();
+}
