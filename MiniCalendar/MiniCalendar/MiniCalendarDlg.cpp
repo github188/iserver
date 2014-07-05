@@ -239,26 +239,36 @@ void CMiniCalendarDlg::OnSize(UINT nType, int cx, int cy)
 
 LRESULT CMiniCalendarDlg::OnTrayMsg(WPARAM wParam, LPARAM lParam)
 {
-    if (WM_RBUTTONDOWN == lParam)
+    switch (lParam)
     {
-        CMenu menu;
-        if (menu.LoadMenu(IDR_MENU_TRAY))
+    case WM_RBUTTONUP:      // ÓÒ¼üµ¯Æð
         {
-            CMenu* pPopup = menu.GetSubMenu(0);
-            ASSERT(pPopup != NULL);
-            CPoint point;
-            GetCursorPos(&point);
-            SetForegroundWindow();
-            pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
+            CMenu menu;
+            if (menu.LoadMenu(IDR_MENU_TRAY))
+            {
+                CMenu* pPopup = menu.GetSubMenu(0);
+                ASSERT(pPopup != NULL);
+                CPoint point;
+                GetCursorPos(&point);
+                SetForegroundWindow();
+                pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
+            }
         }
+    	break;
+    case WM_LBUTTONDBLCLK:  // ×ó¼üË«»÷
+        {
+            ShowWindow(SW_SHOW);
+        }
+        break;
+    case NIN_BALLOONUSERCLICK:  // µ¥»÷ÆøÅÝ
+        {
+            //MessageBox(L"d");
+        }
+        break;
+    default:
+        break;
     }
-    else if (WM_LBUTTONDBLCLK == lParam)
-    {
-        ShowWindow(SW_SHOW);
-    }
-    else
-    {
-    }
+
     return 0;
 }
 
