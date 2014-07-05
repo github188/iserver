@@ -87,15 +87,15 @@ BEGIN_MESSAGE_MAP(CMiniCalendarDlg, CDialog)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_TIMER()
     ON_WM_LBUTTONUP()
-    ON_BN_CLICKED(IDC_BTN_PRE, &CMiniCalendarDlg::OnBnClickedBtnPre)
-    ON_BN_CLICKED(IDC_BTN_NEXT, &CMiniCalendarDlg::OnBnClickedBtnNext)
     ON_WM_LBUTTONDBLCLK()
     ON_WM_LBUTTONUP()
     ON_WM_MOUSEMOVE()
     ON_WM_MOUSELEAVE()
-    ON_MESSAGE(WM_TRAY_MSG, &CMiniCalendarDlg::OnTrayMsg)
+    ON_BN_CLICKED(IDC_BTN_PRE, &CMiniCalendarDlg::OnBnClickedBtnPre)
+    ON_BN_CLICKED(IDC_BTN_NEXT, &CMiniCalendarDlg::OnBnClickedBtnNext)
     ON_COMMAND(ID_TRAY_CONFIG, &CMiniCalendarDlg::OnTrayConfig)
     ON_COMMAND(ID_TRAY_EXIT, &CMiniCalendarDlg::OnTrayExit)
+    ON_MESSAGE(WM_TRAY_MSG, &CMiniCalendarDlg::OnTrayMsg)
 END_MESSAGE_MAP()
 
 
@@ -141,16 +141,9 @@ BOOL CMiniCalendarDlg::OnInitDialog()
     m_bInit = TRUE;
 	MoveWindow(0, 0, 1366, 768);
 
-    m_trayMgr.SetTrayNotify(m_hWnd, WM_TRAY_MSG, AfxGetApp()->LoadIcon(IDI_ICON_TRAY), _T("MiniCalendar"), _T("   迷你日历 V1.0,\r\n   赶紧计划起来吧~"));
+    m_trayMgr.SetTrayNotify(m_hWnd, WM_TRAY_MSG, AfxGetApp()->LoadIcon(IDI_ICON_TRAY), _T("MiniCalendar"), _T("迷你日历 V1.0,\r\n赶紧计划起来吧~"));
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
-}
-
-void CMiniCalendarDlg::OnCancel()
-{
-    // TODO:  在此添加专用代码和/或调用基类
-    ShowWindow(SW_HIDE);
-    //CDialog::OnCancel();
 }
 
 void CMiniCalendarDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -160,7 +153,12 @@ void CMiniCalendarDlg::OnSysCommand(UINT nID, LPARAM lParam)
 		CAboutDlg dlgAbout;
 		dlgAbout.DoModal();
 	}
-	else
+    else if ((nID & 0xFFF0) == SC_CLOSE)
+    {
+        ShowWindow(SW_HIDE);
+        m_trayMgr.ShowTrayMsg(_T("最小化到这里了~"));
+    }
+	else 
 	{
 		CDialog::OnSysCommand(nID, lParam);
 	}

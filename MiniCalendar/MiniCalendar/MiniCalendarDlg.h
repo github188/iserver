@@ -27,7 +27,6 @@ protected:
 
 	// 生成的消息映射函数
     virtual BOOL OnInitDialog();
-    virtual void OnCancel();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
@@ -43,6 +42,8 @@ public:
     afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
     afx_msg void OnMouseMove(UINT nFlags, CPoint point);
     afx_msg void OnMouseLeave();
+    afx_msg void OnTrayConfig();
+    afx_msg void OnTrayExit();
     LRESULT OnTrayMsg(WPARAM wParam, LPARAM lParam);
 
     void DrawLines(CPaintDC& dc);
@@ -94,6 +95,4 @@ public:
 
     CTime m_tLBDown, m_tLBMoving;
 
-    afx_msg void OnTrayConfig();
-    afx_msg void OnTrayExit();
 };

@@ -190,10 +190,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\EventDlg.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\MiniCalendar.cpp"
 				>
 			</File>
@@ -222,10 +218,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\TrayMgr.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\TrayMgr2.cpp"
 				>
 			</File>
@@ -241,10 +233,6 @@
 			</File>
 			<File
 				RelativePath=".\DateDlg.h"
-				>
-			</File>
-			<File
-				RelativePath=".\EventDlg.h"
 				>
 			</File>
 			<File
@@ -265,10 +253,6 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TrayMgr.h"
 				>
 			</File>
 			<File

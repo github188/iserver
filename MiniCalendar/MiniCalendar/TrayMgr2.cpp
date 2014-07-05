@@ -39,7 +39,7 @@ void CTrayMgr2::SetTrayNotify(HWND hWnd, UINT cbMsgId, HICON hIcon, const CStrin
     m_nid.uTimeout = 10;
     _tcscpy_s(m_nid.szInfoTitle, ARRAYSIZE(m_nid.szInfoTitle), strTitle);
     _tcscpy_s(m_nid.szInfo, ARRAYSIZE(m_nid.szInfo), strMsg);
-    m_nid.dwInfoFlags = 0x00000004;
+    m_nid.dwInfoFlags = NIIF_USER;
 
     Shell_NotifyIcon(NIM_ADD, &m_nid);
 
@@ -54,4 +54,10 @@ LRESULT CTrayMgr2::OnTaskBarCreate(WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
     Shell_NotifyIcon(NIM_ADD, &m_nid);
     return 0;
+}
+
+void CTrayMgr2::ShowTrayMsg(const CString& strMsg)
+{
+    _tcscpy_s(m_nid.szInfo, ARRAYSIZE(m_nid.szInfo), strMsg);
+    Shell_NotifyIcon(NIM_MODIFY, &m_nid);
 }
