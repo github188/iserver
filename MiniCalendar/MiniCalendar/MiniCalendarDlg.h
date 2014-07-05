@@ -95,4 +95,7 @@ public:
 
     CTime m_tLBDown, m_tLBMoving;
 
+    CRgn m_rgnSelect;
+    CButton m_btnNewDate;
+    afx_msg void OnBnClickedBtnNewdate();
 };

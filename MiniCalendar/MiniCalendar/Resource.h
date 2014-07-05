@@ -27,8 +27,8 @@
 #define IDC_DTP_STOP1                   1009
 #define IDC_CHECK_ALLDAY                1010
 #define IDC_RICHEDIT2_DETAIL            1011
-#define IDC_BTN_SAVEEXIT                1012
 #define IDC_BTN_SAVECLOSE               1012
+#define IDC_BTN_NEWDATE                 1013
 #define ID_TRAY_32771                   32771
 #define ID_TRAY_EXIT                    32772
 #define ID_TRAY_32773                   32773
@@ -40,7 +40,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32775
-#define _APS_NEXT_CONTROL_VALUE         1013
+#define _APS_NEXT_CONTROL_VALUE         1014
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

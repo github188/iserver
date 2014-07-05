@@ -75,6 +75,7 @@ void CMiniCalendarDlg::DoDataExchange(CDataExchange* pDX)
     CDialog::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_BTN_PRE, m_btnPreMonth);
     DDX_Control(pDX, IDC_BTN_NEXT, m_btnNextMonth);
+    DDX_Control(pDX, IDC_BTN_NEWDATE, m_btnNewDate);
 }
 
 BEGIN_MESSAGE_MAP(CMiniCalendarDlg, CDialog)
@@ -96,6 +97,7 @@ BEGIN_MESSAGE_MAP(CMiniCalendarDlg, CDialog)
     ON_COMMAND(ID_TRAY_CONFIG, &CMiniCalendarDlg::OnTrayConfig)
     ON_COMMAND(ID_TRAY_EXIT, &CMiniCalendarDlg::OnTrayExit)
     ON_MESSAGE(WM_TRAY_MSG, &CMiniCalendarDlg::OnTrayMsg)
+    ON_BN_CLICKED(IDC_BTN_NEWDATE, &CMiniCalendarDlg::OnBnClickedBtnNewdate)
 END_MESSAGE_MAP()
 
 
@@ -153,7 +155,7 @@ void CMiniCalendarDlg::OnSysCommand(UINT nID, LPARAM lParam)
 		CAboutDlg dlgAbout;
 		dlgAbout.DoModal();
 	}
-    else if ((nID & 0xFFF0) == SC_CLOSE)
+    else if ((nID & 0xFFF0) == SC_MINIMIZE)
     {
         ShowWindow(SW_HIDE);
         m_trayMgr.ShowTrayMsg(_T("最小化到这里了~"));
@@ -237,7 +239,7 @@ void CMiniCalendarDlg::OnSize(UINT nType, int cx, int cy)
     InvalidateRect(rcTemp);
 }
 
-LRESULT CMiniCalendarDlg::OnTrayMsg(WPARAM wParam, LPARAM lParam)
+LRESULT CMiniCalendarDlg::OnTrayMsg(WPARAM /*wParam*/, LPARAM lParam)
 {
     switch (lParam)
     {
@@ -436,6 +438,7 @@ void CMiniCalendarDlg::InitDateInfo(int nYear, int nMonth)
 
 void CMiniCalendarDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
+    m_btnNewDate.ShowWindow(SW_HIDE);
 	if (m_rcFakeTitle.PtInRect(point))
 	{
 		//PostMessage(WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(point.x, point.y));
@@ -724,7 +727,6 @@ void CMiniCalendarDlg::RemoveSelect(int i, int j)
 	}
 }
 
-
 void CMiniCalendarDlg::OnBnClickedBtnPre()
 {
     int nYear = m_tDisplayMonth.GetYear();
@@ -862,15 +864,20 @@ void CMiniCalendarDlg::TrackMouseArea(CPoint& pt)
 
 void CMiniCalendarDlg::NewDate()
 {
-    for (int i = 1; i <= m_nWeekNum; ++i)
+    // 选出最后一个day
+    _date::DAY_INFO* day = m_selectDay.front();
+    for (std::list<_date::DAY_INFO*>::const_iterator itr = m_selectDay.begin();
+        itr != m_selectDay.end(); ++itr)
     {
-        for (int j = 1; j < MAX_WEEK_COL; ++j)
+        if ((*itr)->date() > day->date())
         {
-            if (m_dayArea[i][j].select())
-            {
-            }
+            day = *itr;
         }
     }
+
+    CRect rcBtn;
+    m_btnNewDate.GetClientRect(rcBtn);
+    m_btnNewDate.SetWindowPos(0, day->rect().right - rcBtn.Width(), day->rect().bottom - rcBtn.Height(), 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW);
 }
 
 
@@ -882,4 +889,26 @@ void CMiniCalendarDlg::OnTrayConfig()
 void CMiniCalendarDlg::OnTrayExit()
 {
     CDialog::OnCancel();
+}
+
+void CMiniCalendarDlg::OnBnClickedBtnNewdate()
+{
+    // 开始时间---结束时间
+    _date::DAY_INFO* start_day = m_selectDay.front();
+    _date::DAY_INFO* stop_day = m_selectDay.back();
+    for (std::list<_date::DAY_INFO*>::const_iterator itr = m_selectDay.begin();
+        itr != m_selectDay.end(); ++itr)
+    {
+        if ((*itr)->date() < start_day->date())
+        {
+            start_day = *itr;
+        }
+        if ((*itr)->date() > stop_day->date())
+        {
+            stop_day = *itr;
+        }
+    }
+
+    CDateDlg dlg(start_day->date(), stop_day->date());
+    dlg.DoModal();
 }

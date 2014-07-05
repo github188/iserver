@@ -8,7 +8,7 @@ class CDateDlg : public CDialog
 	DECLARE_DYNAMIC(CDateDlg)
 
 public:
-    CDateDlg(_date::_date_info& dateInfo, CWnd* pParent = NULL);   // 标准构造函数
+    CDateDlg(const CTime& tStart, const CTime& tStop, CWnd* pParent = NULL);   // 标准构造函数
 	virtual ~CDateDlg();
 
 // 对话框数据
@@ -25,5 +25,6 @@ public:
     afx_msg BOOL OnEraseBkgnd(CDC* pDC);
     void InitCtrls();
     bool m_bInit;
-    _date::_date_info& m_dateInfo;
+    CTime m_tStart;
+    CTime m_tStop;
 };
