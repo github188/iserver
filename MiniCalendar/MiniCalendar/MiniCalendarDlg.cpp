@@ -460,7 +460,7 @@ void CMiniCalendarDlg::OnLButtonUp(UINT nFlags, CPoint point)
     m_tLBMoving = CTime(0);
     m_tLBDown = CTime(0);
 
-    NewDate();
+    NewDate(point);
 
     CDialog::OnLButtonUp(nFlags, point);
 }
@@ -862,8 +862,9 @@ void CMiniCalendarDlg::TrackMouseArea(CPoint& pt)
 
 }
 
-void CMiniCalendarDlg::NewDate()
+void CMiniCalendarDlg::NewDate(CPoint& pt)
 {
+    /*
     // 选出最后一个day
     _date::DAY_INFO* day = m_selectDay.front();
     for (std::list<_date::DAY_INFO*>::const_iterator itr = m_selectDay.begin();
@@ -872,6 +873,18 @@ void CMiniCalendarDlg::NewDate()
         if ((*itr)->date() > day->date())
         {
             day = *itr;
+        }
+    }
+    */
+    // 鼠标所在的day
+    _date::DAY_INFO* day = m_selectDay.front();
+    for (std::list<_date::DAY_INFO*>::const_iterator itr = m_selectDay.begin();
+        itr != m_selectDay.end(); ++itr)
+    {
+        if ((*itr)->rect().PtInRect(pt))
+        {
+            day = *itr;
+            break;
         }
     }
 
